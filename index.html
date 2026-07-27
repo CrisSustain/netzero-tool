@@ -1910,6 +1910,29 @@ function tabExportImportV2(){
       <button class="btn" id="xExcel6">${t("x_excel6")}</button>
     </div>
     <div class="hint" style="margin-top:8px">${t("x_formats_data")}</div>
+    <!-- V3 (Review 27.07.2026, Anwenderwunsch): Die Fachexporte lagen bisher verstreut in den
+         Reitern "CO₂ Impact/Äquivalente" und "Scope 4". Sie liefern jeweils EIGENE Daten, die
+         der Export oben nicht enthält (dort steht nur der Reduktionspfad) — deshalb hierher
+         verschoben statt entfernt. Ein Ort für alle Ausgaben. -->
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line,#2a3b53)">
+      <div style="font-weight:600;margin-bottom:4px">${t("co2_h_export")}</div>
+      <div class="hint" style="margin-bottom:8px">${state.lang==="en"?"Result values with formula, factor, source, document, year, data quality and uncertainty.":"Ergebniswerte mit Formel, Faktor, Quelle, Dokument, Jahr, Datenqualität und Unsicherheit."}</div>
+      <div class="exp-actions-v2">
+        <button class="btn" id="ciExpJson">${t("co2_exp_json")}</button>
+        <button class="btn" id="ciExpCsv">${t("co2_exp_csv")}</button>
+        <button class="btn" id="ciExpMd">${t("co2_exp_md")}</button>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line,#2a3b53)">
+      <div style="font-weight:600;margin-bottom:4px">${t("s4_h_export")}</div>
+      <div class="hint" style="margin-bottom:8px">${t("s4_export_note")}</div>
+      <div class="exp-actions-v2">
+        <button class="btn" id="s4ExpJson">${t("s4_exp_json")}</button>
+        <button class="btn" id="s4ExpCsv">${t("s4_exp_csv")}</button>
+        <button class="btn" id="s4ExpMd">${t("s4_exp_md")}</button>
+        <button class="btn" id="s4ExpMgmt">${t("s4_exp_mgmt")}</button>
+      </div>
+    </div>
   </div>
   <div class="card"><h3><span class="exp-badge-v2">2</span>${t("x_h_charts")}</h3>
     <div class="hint" style="margin-bottom:10px">${t("x_p_charts")}</div>
@@ -1993,6 +2016,10 @@ let vollbildCardV2=null;
 function exitVollbildV2(){
   if(!vollbildCardV2)return;
   vollbildCardV2.card.classList.remove("is-vollbild");
+  /* V3-Fix: Karte an ihren urspruenglichen Platz zurueckstellen (siehe toggleVollbildV2). */
+  if(vollbildCardV2.platzhalter&&vollbildCardV2.platzhalter.parentNode){
+    vollbildCardV2.platzhalter.parentNode.replaceChild(vollbildCardV2.card,vollbildCardV2.platzhalter);
+  }
   vollbildCardV2.backdrop.remove();
   document.removeEventListener("keydown",escVollbildV2);
   vollbildCardV2=null;
@@ -2002,14 +2029,37 @@ function toggleVollbildV2(card){
   if(vollbildCardV2&&vollbildCardV2.card===card){exitVollbildV2();return;}
   if(vollbildCardV2)exitVollbildV2();
   const bd=document.createElement("div");bd.className="vollbild-backdrop";bd.onclick=exitVollbildV2;
-  document.body.appendChild(bd);card.classList.add("is-vollbild");
+  document.body.appendChild(bd);
+  /* V3-Fix (Review 27.07.2026, Anwenderfund "im Vollbild erscheint nur so etwas"):
+     Die Karte blieb an ihrem Platz im Layout. Liegt ueber ihr ein Elternelement mit eigenem
+     Stacking-Context (transform / filter / backdrop-filter — im Split-Layout und beim
+     Spotlight der Fall), dann bezieht sich ihr position:fixed auf dieses Elternteil und ihr
+     z-index gilt nur INNERHALB davon: Die Karte landete hinter der Abdunklung und ragte
+     ueber den Rand. Loesung: Karte fuer die Dauer des Vollbilds direkt an <body> haengen und
+     die Luecke im Layout mit einem Platzhalter offenhalten. */
+  const ph=document.createComment("vollbild-platzhalter-v3");
+  if(card.parentNode)card.parentNode.replaceChild(ph,card);
+  document.body.appendChild(card);
+  card.classList.add("is-vollbild");
   document.addEventListener("keydown",escVollbildV2);
-  vollbildCardV2={card,backdrop:bd};
+  vollbildCardV2={card,backdrop:bd,platzhalter:ph};
 }
 function injectVollbildButtonsV2(){
   document.querySelectorAll("#mainContent .card").forEach(card=>{
     if(card.querySelector(".vb-btn"))return;
-    if(!card.querySelector("svg")&&!card.querySelector("table"))return;
+    /* V3-Fix (Review 27.07.2026, Anwenderfund "der Fullscreen-Button macht dort keinen Sinn"):
+       Bisher genuegte irgendein <svg> ODER irgendeine <table> in der Karte. Damit bekamen auch
+       Eingabemasken einen Vollbild-Knopf — "Scope-Parameter" (37 Eingabefelder) und
+       "Massnahmen" nutzen eine Tabelle nur als Layout-Gerüst, nicht als Datenausgabe.
+       Jetzt: nur Karten mit einem echten Diagramm (grosses SVG, keine Icons) oder einer
+       reinen Datentabelle; Karten, die ueberwiegend aus Eingabefeldern bestehen, nie. */
+    const eingaben=card.querySelectorAll("input,select,textarea").length;
+    const diagramm=[...card.querySelectorAll("svg")].some(s=>{
+      const b=s.getBoundingClientRect();return b.width>=200&&b.height>=120;
+    });
+    const datentabelle=!!card.querySelector("table")&&eingaben===0;
+    if(eingaben>2&&!diagramm)return;
+    if(!diagramm&&!datentabelle)return;
     const head=card.querySelector("h3");if(!head)return;
     const b=document.createElement("button");
     b.type="button";b.className="vb-btn no-print";b.textContent=t("fullscreen");
@@ -2090,13 +2140,11 @@ function tabCo2Impact(){
     <p class="hint">${t("co2_money_warn")}</p>
   </div>
 
-  <div class="card"><h3>${t("co2_h_export")}</h3>
-    <div class="row-actions" style="flex-wrap:wrap">
-      <button class="btn" id="ciExpJson">${t("co2_exp_json")}</button>
-      <button class="btn" id="ciExpCsv">${t("co2_exp_csv")}</button>
-      <button class="btn" id="ciExpMd">${t("co2_exp_md")}</button>
-    </div>
-  </div>`;
+  `;
+  /* V3 (Review 27.07.2026, Anwenderwunsch): Der Export-Block lag frueher hier im Fachtab.
+     Exporte sind jetzt gebuendelt im Reiter "Export/Import" (Abschnitt "Technischer Export"),
+     damit es EINEN Ort fuer alle Ausgaben gibt. Die Funktionen selbst (co2ExportJson/Csv/Md)
+     sind unveraendert — nur der Aufrufort ist umgezogen. */
 }
 
 /* ---------- Tab: Audit & Quellen (Pflicht) ---------- */
@@ -2540,15 +2588,9 @@ function tabScope4(){
     <tbody>${projRows || `<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">${t("s4_nolist")}</td></tr>`}</tbody></table>
   </div>
 
-  <div class="card"><h3>${t("s4_h_export")}</h3>
-    <div class="row-actions" style="flex-wrap:wrap">
-      <button class="btn" id="s4ExpJson">${t("s4_exp_json")}</button>
-      <button class="btn" id="s4ExpCsv">${t("s4_exp_csv")}</button>
-      <button class="btn" id="s4ExpMd">${t("s4_exp_md")}</button>
-      <button class="btn" id="s4ExpMgmt">${t("s4_exp_mgmt")}</button>
-    </div>
-    <p class="hint">${t("s4_export_note")}</p>
-  </div>`;
+  `;
+  /* V3 (Review 27.07.2026, Anwenderwunsch): Export-Block in den Reiter "Export/Import"
+     verschoben — siehe Kommentar in tabCo2Impact. */
 }
 
 /* Scope-4-Abschnitte für den Audit-&-Quellen-Tab (Spec §8). */
@@ -3865,6 +3907,20 @@ function wireActiveTab(){
   if(tab==="co2impact"){ co2WireImpact(); return; }
   if(tab==="scope4"){ s4Wire(); return; }
   if(tab==="auditquellen"){ co2WireAudit(); return; }
+  if(tab==="exportimport"){
+    /* V3 (Review 27.07.2026): Die aus den Fachtabs hierher verschobenen Exportknoepfe
+       verdrahten. Die Exportfunktionen selbst sind unveraendert; sie lesen ihre Daten aus
+       state, brauchen also den jeweiligen Tab nicht geoeffnet. Null-Guards ueber b(). */
+    const b=(id,fn)=>{const el=document.getElementById(id); if(el&&typeof fn==="function") el.onclick=fn;};
+    b("ciExpJson",typeof co2ExportJson==="function"?co2ExportJson:null);
+    b("ciExpCsv", typeof co2ExportCsv==="function"?co2ExportCsv:null);
+    b("ciExpMd",  typeof co2ExportMd==="function"?co2ExportMd:null);
+    b("s4ExpJson",typeof s4ExportJson==="function"?s4ExportJson:null);
+    b("s4ExpCsv", typeof s4ExportCsv==="function"?s4ExportCsv:null);
+    b("s4ExpMd",  typeof s4AuditMd==="function"?s4AuditMd:null);
+    b("s4ExpMgmt",typeof s4ManagementMd==="function"?s4ManagementMd:null);
+    /* kein return: die uebrigen Export-Handler (xCsv/xMd/xImg/Import …) folgen weiter unten */
+  }
   if(tab==="rechner"){
     bindText("p_name","project","name");
     bindNumLive("p_basisjahr","project","basisjahr"); bindNumLive("p_nearjahr","project","nearjahr"); bindNumLive("p_zieljahr","project","zieljahr");
