@@ -1979,6 +1979,24 @@ function rechenwegeInnerV3(){
     <p class="hint">${en
       ? "Rounding happens only for display; the calculation runs on unrounded values. Sources and assumptions belong under Audit trail, the factors for the equivalents are listed there too."
       : "Gerundet wird nur für die Anzeige, gerechnet mit ungerundeten Werten. Quellen und Annahmen gehören unter Audit-Trail, dort stehen auch die Faktoren der Äquivalente."}</p>
+  </div>`
+  + `<div class="card"><h3>${en?"How the four Big-Picture charts are built":"Wie die vier Big-Picture-Grafiken entstehen"}</h3>
+    ${f(en?"Which measure contributes most?":"Welche Maßnahme trägt am meisten?",
+      en?"share = effect of the measure ÷ sum of all measure effects":"Anteil = Wirkung der Maßnahme ÷ Summe aller Maßnahmenwirkungen",
+      en?"Sorted descending, so the top bars are where the plan actually stands or falls. The percentage refers to the recorded measures, not to the target — if the measures do not cover the target, 100 % here is still not the target reached."
+        :"Absteigend sortiert, oben steht also, woran der Plan wirklich hängt. Der Prozentwert bezieht sich auf die erfassten Maßnahmen, nicht auf das Ziel — decken die Maßnahmen das Ziel nicht, sind 100 % hier trotzdem nicht das erreichte Ziel.")}
+    ${f(en?"Where is the gap?":"Wo klafft die Lücke?",
+      en?"bar = measures of the scope ÷ target reduction of the scope":"Balken = Maßnahmen des Scopes ÷ Zielreduktion des Scopes",
+      en?"Same arithmetic as the coverage above, per scope. A scope that carries emissions but has <b>no</b> reduction target appears as a dashed row with its tonnage — it is deliberately not hidden, because that volume is in the balance and in no coverage figure."
+        :"Dieselbe Rechnung wie der Deckungsgrad oben, je Scope. Ein Scope mit Emissionen, aber <b>ohne</b> Reduktionsziel erscheint als gestrichelte Zeile mit seiner Menge — er wird bewusst nicht ausgeblendet, denn diese Menge steht in der Bilanz und in keiner Deckungszahl.")}
+    ${f(en?"Does the effect arrive in time?":"Kommt die Wirkung rechtzeitig?",
+      en?"curve = measure effects cumulated by their year of full effect":"Kurve = Maßnahmenwirkungen, kumuliert nach ihrem Jahr der vollen Wirkung",
+      en?"A step function, not a smooth ramp: each measure is booked in full in its year. Real measures ramp up over months — the curve is therefore optimistic on timing."
+        :"Eine Treppenfunktion, keine sanfte Rampe: Jede Maßnahme wird in ihrem Jahr vollständig gebucht. Echte Maßnahmen laufen über Monate an — die Kurve ist zeitlich also optimistisch.")}
+    ${f(en?"How does the plan compare to SBTi, EU and IPCC?":"Wie steht der Plan zu SBTi, EU und IPCC?",
+      en?"path(year) = base emissions × (1 − rate × years since base year)":"Pfad(Jahr) = Basisemissionen × (1 − Rate × Jahre seit Basisjahr)",
+      en?"All pathways are linear and normalised to <b>your</b> base year, so the lines are comparable in shape. Rates: SBTi 1.5 °C −4.2 %-points p.a. (Corporate Net-Zero Standard), SBTi well-below 2 °C −2.5, IPCC 1.5 °C −2.25 (SR1.5, −45 % by 2030 vs 2010), EU Fit for 55 −1.375 (Reg. (EU) 2021/1119, −55 % by 2030 vs 1990). <b>The reference years differ</b> — EU and IPCC are economy-wide and global targets and are shown for orientation only, never as a company target."
+        :"Alle Pfade sind linear und auf <b>Ihr</b> Basisjahr normiert, die Linien sind also in der Form vergleichbar. Raten: SBTi 1,5 °C −4,2 %-Punkte p. a. (Corporate Net-Zero Standard), SBTi deutlich unter 2 °C −2,5, IPCC 1,5 °C −2,25 (SR1.5, −45 % bis 2030 ggü. 2010), EU Fit for 55 −1,375 (VO (EU) 2021/1119, −55 % bis 2030 ggü. 1990). <b>Die Bezugsjahre unterscheiden sich</b> — EU und IPCC sind volkswirtschaftliche bzw. globale Ziele und stehen nur zur Einordnung, nie als Unternehmensziel.")}
   </div>`;
 }
 function tabMethodikV2(){
@@ -2112,8 +2130,12 @@ function tabExportImportV2(){
     <div class="hint" style="margin-bottom:10px">${t("x_p_demo")}</div>
     <div class="exp-actions-v2">
       <button class="btn" id="xDemo">${t("demo")}</button>
+      <button class="btn" id="xTewCase">${state.lang==="en"?"Load TEW case":"TEW-Fall laden"}</button>
       <button class="btn" id="xReset">${t("reset")}</button>
     </div>
+    <div class="hint" style="margin-top:8px">${state.lang==="en"
+      ? "<b>TEW case</b> fills in the documented figures from the TEW sustainability report 2024 and the NetZero plan: Scope 1/2 actuals for 2024, the conservative Scope 3 estimate, the roadmap measures and the target Net Zero 2040. The origin of every figure is written to the audit trail."
+      : "<b>TEW-Fall</b> trägt die belegten Werte aus dem TEW-Nachhaltigkeitsbericht 2024 und dem NetZero-Plan ein: Scope-1/2-Ist-Werte 2024, die konservative Scope-3-Schätzung, die Roadmap-Maßnahmen und das Ziel Net-Zero 2040. Die Herkunft jeder Zahl wird in den Audit-Trail geschrieben."}</div>
   </div>
   <div class="card"><h3><span class="exp-badge-v2">6</span>${t("x_h_import")}</h3>
     <div class="hint" style="margin-bottom:10px">${t("x_p_import")}</div>
@@ -3559,9 +3581,12 @@ function nzChartLueckeV3(){
   var res=buildDashboardResult();
   if(!res.valid)return nzLeerV3(en?"Enter base year, target year and scope data first.":"Zuerst Basisjahr, Zieljahr und Scope-Daten eingeben.");
   var rows=res.rows.filter(function(x){return (+x.zielreduktion||0)>0;});
-  if(!rows.length)return nzLeerV3(en?"No scope has a reduction target yet.":"Noch kein Scope mit Reduktionsziel.");
+  // Scopes mit Emissionen, aber ohne Reduktionsziel duerfen nicht stillschweigend verschwinden -
+  // sonst sieht eine Bilanz gedeckt aus, in der ein grosser Teil des Fussabdrucks kein Ziel hat.
+  var ohneZiel=res.rows.filter(function(x){return (+x.bau||0)>0 && !((+x.zielreduktion||0)>0);});
+  if(!rows.length && !ohneZiel.length)return nzLeerV3(en?"No scope has a reduction target yet.":"Noch kein Scope mit Reduktionsziel.");
   var w=880,rowH=54,padL=104,padR=120,padT=14,padB=30;
-  var h=padT+padB+rows.length*rowH, innerW=w-padL-padR;
+  var h=padT+padB+(rows.length+ohneZiel.length)*rowH, innerW=w-padL-padR;
   var g='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="'+(en?"Coverage per scope":"Deckungsgrad je Scope")+'">';
   rows.forEach(function(r,i){
     var y=padT+i*rowH;
@@ -3575,13 +3600,21 @@ function nzChartLueckeV3(){
     if(echt<100)g+='<text x="'+(padL+innerW)+'" y="'+(y+45)+'" text-anchor="end" font-size="10.5" fill="var(--text-muted)">'+(en?"gap":"L\u00fccke")+' '+fmtT(ziel-ist)+' t</text>';
     g+='<text x="'+(padL+innerW+10)+'" y="'+(y+26)+'" font-size="13" font-weight="600" fill="'+col+'">'+echt.toFixed(0)+' %</text>';
   });
+  ohneZiel.forEach(function(r,i){
+    var y=padT+(rows.length+i)*rowH, bau=+r.bau||0;
+    g+='<text x="'+(padL-12)+'" y="'+(y+26)+'" text-anchor="end" font-size="12.5" fill="var(--text-muted)">'+t(r.scope)+'</text>';
+    g+='<rect x="'+padL+'" y="'+(y+8)+'" width="'+innerW+'" height="24" rx="4" fill="none" stroke="var(--text-muted)" stroke-width="1.2" stroke-dasharray="5 4" opacity=".75">'
+      +'<title>'+t(r.scope)+' \u00b7 '+fmtT(bau)+' t CO\u2082e '+(en?"in the balance, no reduction target set":"in der Bilanz, kein Reduktionsziel hinterlegt")+'</title></rect>';
+    g+='<text x="'+(padL+innerW/2)+'" y="'+(y+25)+'" text-anchor="middle" font-size="11.5" fill="var(--text-muted)">'+(en?"no target set":"kein Ziel hinterlegt")+' \u00b7 '+fmtT(bau)+' t</text>';
+    g+='<text x="'+(padL+innerW+10)+'" y="'+(y+26)+'" font-size="13" font-weight="600" fill="var(--text-muted)">\u2013</text>';
+  });
   g+='<text x="'+padL+'" y="'+(h-10)+'" font-size="11" fill="var(--text-muted)">'+(en?"Bar = share of the scope target already covered by measures":"Balken = Anteil des Scope-Ziels, den Ma\u00dfnahmen bereits decken")+'</text>';
   g+='</svg>';
   var luecke=rows.filter(function(r){return (+r.massnahmensumme||0)<(+r.zielreduktion||0);});
   var groesste=luecke.slice().sort(function(a,b){return ((+b.zielreduktion-+b.massnahmensumme)-(+a.zielreduktion-+a.massnahmensumme));})[0];
   var txt=en
-    ? 'How much of each scope target the recorded measures already cover. Green from 100 %, amber from 50 %, red below. '+(groesste?'Largest gap: <b>'+t(groesste.scope)+'</b> with '+fmtT((+groesste.zielreduktion)-(+groesste.massnahmensumme))+' t still unaddressed.':'All scope targets are fully covered by measures.')+' A full bar means the arithmetic adds up - not that the measures are implemented.'
-    : 'Wie viel des jeweiligen Scope-Ziels die erfassten Ma\u00dfnahmen bereits decken. Gr\u00fcn ab 100 %, gelb ab 50 %, rot darunter. '+(groesste?'Gr\u00f6\u00dfte L\u00fccke: <b>'+t(groesste.scope)+'</b> mit '+fmtT((+groesste.zielreduktion)-(+groesste.massnahmensumme))+' t ohne hinterlegte Ma\u00dfnahme.':'Alle Scope-Ziele sind rechnerisch durch Ma\u00dfnahmen gedeckt.')+' Ein voller Balken hei\u00dft, dass die Rechnung aufgeht - nicht, dass die Ma\u00dfnahmen umgesetzt sind.';
+    ? 'How much of each scope target the recorded measures already cover. Green from 100 %, amber from 50 %, red below. '+(groesste?'Largest gap: <b>'+t(groesste.scope)+'</b> with '+fmtT((+groesste.zielreduktion)-(+groesste.massnahmensumme))+' t still unaddressed.':'All scope targets are fully covered by measures.')+' A full bar means the arithmetic adds up - not that the measures are implemented.'+(ohneZiel.length?' Dashed row: <b>'+ohneZiel.map(function(x){return t(x.scope);}).join(', ')+'</b> carries '+fmtT(ohneZiel.reduce(function(a,x){return a+(+x.bau||0);},0))+' t in the balance with no reduction target - that volume is not part of any coverage figure above.':'')
+    : 'Wie viel des jeweiligen Scope-Ziels die erfassten Ma\u00dfnahmen bereits decken. Gr\u00fcn ab 100 %, gelb ab 50 %, rot darunter. '+(groesste?'Gr\u00f6\u00dfte L\u00fccke: <b>'+t(groesste.scope)+'</b> mit '+fmtT((+groesste.zielreduktion)-(+groesste.massnahmensumme))+' t ohne hinterlegte Ma\u00dfnahme.':'Alle Scope-Ziele sind rechnerisch durch Ma\u00dfnahmen gedeckt.')+' Ein voller Balken hei\u00dft, dass die Rechnung aufgeht - nicht, dass die Ma\u00dfnahmen umgesetzt sind.'+(ohneZiel.length?' Gestrichelte Zeile: <b>'+ohneZiel.map(function(x){return t(x.scope);}).join(', ')+'</b> steht mit '+fmtT(ohneZiel.reduce(function(a,x){return a+(+x.bau||0);},0))+' t in der Bilanz, ohne Reduktionsziel \u2013 diese Menge steckt in keiner der Deckungszahlen oben.':'');
   return g+nzLeseV3(txt);
 }
 
@@ -3633,12 +3666,143 @@ function nzChartZeitV3(){
   return g+nzLeseV3(txt);
 }
 
+
+/* ============ V3: Referenzpfade + TEW-Fall (Anwenderwunsch 27.07.) ============
+   Quellen der Zielwerte:
+     SBTi 1,5 C  - lineare absolute Reduktion 4,2 %-Punkte der Basis pro Jahr
+                   (SBTi Corporate Net-Zero Standard; im TEW-Plan als Referenzpfad hinterlegt)
+     SBTi WB2 C  - 2,5 %-Punkte pro Jahr
+     EU Fit for 55 - 55 % bis 2030 gegenueber 1990 (VO (EU) 2021/1119), 40 Jahre
+                   -> 1,375 %-Punkte pro Jahr linear
+     IPCC 1,5 C  - 45 % bis 2030 gegenueber 2010 (SR1.5), 20 Jahre
+                   -> 2,25 %-Punkte pro Jahr linear
+   WICHTIG und in der Lesehilfe ausdruecklich gesagt: EU- und IPCC-Ziele sind
+   volkswirtschaftliche bzw. globale Ziele mit eigenem Basisjahr (1990 bzw. 2010).
+   Sie werden hier auf das Basisjahr des Projekts normiert und dienen der EINORDNUNG,
+   nicht als Unternehmensziel. Netto-Null-Marken kommen aus dem Rechtsrahmen:
+   Deutschland 2045 (KSG Sec.3 Abs.2), EU 2050 (VO 2021/1119), IEA Net-Zero 2050. */
+var NZ_PFADE_V3=[
+ {id:"sbti15", kurz:"SBTi 1,5 \u00b0C",      rate:4.2,   farbe:"var(--success)", dash:"",      quelle:"SBTi Corporate Net-Zero Standard: −4,2 %-Punkte p. a. (linear, absolut)"},
+ {id:"ipcc15", kurz:"IPCC 1,5 \u00b0C",      rate:2.25,  farbe:"var(--accent)",  dash:"6 4",   quelle:"IPCC SR1.5: \u221245 % bis 2030 ggü. 2010"},
+ {id:"sbti2",  kurz:"SBTi < 2 \u00b0C",      rate:2.5,   farbe:"var(--warning)", dash:"2 3",   quelle:"SBTi, deutlich unter 2 \u00b0C: \u22122,5 %-Punkte p. a."},
+ {id:"eu55",   kurz:"EU Fit for 55",        rate:1.375, farbe:"var(--text-muted)",dash:"9 5",  quelle:"VO (EU) 2021/1119: \u221255 % bis 2030 ggü. 1990"}
+];
+var NZ_NETTONULL_V3=[{jahr:2045,txt:"DE KSG"},{jahr:2050,txt:"EU / IEA"}];
+
+function nzChartPfadeV3(){
+  var en=state.lang==="en";
+  var res=buildDashboardResult();
+  if(!res.valid)return nzLeerV3(en?"Enter base year, target year and scope data first.":"Zuerst Basisjahr, Zieljahr und Scope-Daten eingeben.");
+  var basisJ=+state.project.basisjahr, zielJ=+state.project.zieljahr;
+  if(!(zielJ>basisJ))return nzLeerV3(en?"Target year must be after the base year.":"Das Zieljahr muss nach dem Basisjahr liegen.");
+  var basisE=res.rows.reduce(function(a,x){return a+(+x.bau||0);},0);
+  var startE=(res.final&&res.final.total)||basisE;
+  if(!(startE>0))return nzLeerV3(en?"No baseline emissions recorded.":"Keine Basisemissionen erfasst.");
+  var endeJ=Math.max(zielJ,2050);
+  var jahre=[];for(var y=basisJ;y<=endeJ;y++)jahre.push(y);
+  var w=880,h=360,padL=68,padR=118,padT=22,padB=44,innerW=w-padL-padR,innerH=h-padT-padB;
+  var X=function(yy){return padL+((yy-basisJ)/(endeJ-basisJ))*innerW;};
+  var Y=function(v){return padT+innerH-(Math.max(0,v)/startE)*innerH;};
+  var g='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="'+(en?"Reduction pathways in comparison":"Reduktionspfade im Vergleich")+'">';
+  [0,.25,.5,.75,1].forEach(function(f){var v=startE*f,yy=Y(v);
+    g+='<line x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(w-padR)+'" y2="'+yy.toFixed(1)+'" stroke="var(--text-muted)" opacity=".16"/>'
+      +'<text x="'+(padL-8)+'" y="'+(yy+4).toFixed(1)+'" text-anchor="end" font-size="10.5" fill="var(--text-muted)">'+fmtT(v)+'</text>';});
+  // Referenzpfade
+  NZ_PFADE_V3.forEach(function(pf){
+    var d=jahre.map(function(yy,i){var v=Math.max(0,startE*(1-pf.rate/100*(yy-basisJ)));return (i?"L":"M")+X(yy).toFixed(1)+","+Y(v).toFixed(1);}).join(" ");
+    g+='<path d="'+d+'" fill="none" stroke="'+pf.farbe+'" stroke-width="1.7" opacity=".85"'+(pf.dash?' stroke-dasharray="'+pf.dash+'"':'')+'>'
+      +'<title>'+pf.kurz+' \u00b7 \u2212'+String(pf.rate).replace(".",",")+' %-'+(en?"points p.a.":"Punkte p. a.")+' \u00b7 '+pf.quelle+'</title></path>';
+    var nullJahr=basisJ+Math.ceil(100/pf.rate);
+    var endY=Y(Math.max(0,startE*(1-pf.rate/100*(endeJ-basisJ))));
+    g+='<text x="'+(w-padR+6)+'" y="'+(endY+4).toFixed(1)+'" font-size="10.5" fill="'+pf.farbe+'">'+pf.kurz+'</text>';
+  });
+  // eigene Planlinie: Basis -> Netto-Rest im Zieljahr
+  var restZiel=(res.final&&res.final.netTotal!=null)?res.final.netTotal:startE;
+  var dPlan="M"+X(basisJ).toFixed(1)+","+Y(startE).toFixed(1)+" L"+X(zielJ).toFixed(1)+","+Y(restZiel).toFixed(1);
+  g+='<path d="'+dPlan+'" fill="none" stroke="var(--danger)" stroke-width="3">'
+    +'<title>'+(en?"Own plan":"Eigener Plan")+': '+fmtT(startE)+' t \u2192 '+fmtT(restZiel)+' t ('+basisJ+'\u2013'+zielJ+')</title></path>';
+  g+='<circle cx="'+X(zielJ).toFixed(1)+'" cy="'+Y(restZiel).toFixed(1)+'" r="5" fill="var(--danger)"/>';
+  g+='<text x="'+(X(zielJ)).toFixed(1)+'" y="'+(Y(restZiel)-11).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--danger)">'+(en?"own plan":"eigener Plan")+' '+zielJ+'</text>';
+  // Netto-Null-Marken
+  NZ_NETTONULL_V3.forEach(function(m){
+    if(m.jahr<basisJ||m.jahr>endeJ)return;
+    g+='<line x1="'+X(m.jahr).toFixed(1)+'" y1="'+padT+'" x2="'+X(m.jahr).toFixed(1)+'" y2="'+(padT+innerH)+'" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2 5" opacity=".55"><title>'+(en?"Net zero":"Netto-Null")+' '+m.txt+': '+m.jahr+'</title></line>'
+      +'<text x="'+X(m.jahr).toFixed(1)+'" y="'+(padT-7)+'" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">'+m.txt+' '+m.jahr+'</text>';
+  });
+  jahre.forEach(function(yy,i){
+    if(yy%5===0||yy===basisJ||yy===zielJ)
+      g+='<text x="'+X(yy).toFixed(1)+'" y="'+(h-22)+'" text-anchor="middle" font-size="10" fill="var(--text-muted)">'+yy+'</text>';});
+  g+='<text x="'+padL+'" y="'+(h-6)+'" font-size="10.5" fill="var(--text-muted)">'+(en?"Emissions in t CO\u2082e - all pathways normalised to the base year":"Emissionen in t CO\u2082e - alle Pfade auf das Basisjahr normiert")+'</text>';
+  g+='</svg>';
+  // Einordnung: eigene Rate gegen SBTi
+  var jahreBis=zielJ-basisJ;
+  var eigeneRate=jahreBis>0&&startE>0?((startE-restZiel)/startE*100/jahreBis):0;
+  var sbtiWert=Math.max(0,startE*(1-4.2/100*jahreBis));
+  var strenger=restZiel<sbtiWert;
+  var txt=en
+    ? 'Your plan (red) against science-based and regulatory pathways, all normalised to your base year '+basisJ+'. Your line falls by about <b>'+eigeneRate.toFixed(1)+' percentage points per year</b>; SBTi 1.5 &deg;C requires 4.2. In '+zielJ+' your plan reaches '+fmtT(restZiel)+' t, the SBTi path '+fmtT(sbtiWert)+' t &mdash; your plan is therefore <b>'+(strenger?'more ambitious':'less ambitious')+'</b> than SBTi 1.5 &deg;C. Dotted verticals mark the legal net-zero dates. <b>Read with care:</b> EU Fit for 55 (base 1990) and IPCC 1.5 &deg;C (base 2010) are economy-wide and global targets with their own base years; they are shown for orientation, not as company targets. A company in a growing site may need a steeper path than the average.'
+    : 'Ihr Plan (rot) gegen wissenschaftsbasierte und regulatorische Pfade, alle auf Ihr Basisjahr '+basisJ+' normiert. Ihre Linie f\u00e4llt um rund <b>'+eigeneRate.toFixed(1).replace(".",",")+' Prozentpunkte pro Jahr</b>; SBTi 1,5 &deg;C verlangt 4,2. Im Jahr '+zielJ+' erreicht Ihr Plan '+fmtT(restZiel)+' t, der SBTi-Pfad '+fmtT(sbtiWert)+' t &mdash; Ihr Plan ist damit <b>'+(strenger?'ambitionierter':'weniger ambitioniert')+'</b> als SBTi 1,5 &deg;C. Die gepunkteten Senkrechten markieren die gesetzlichen Netto-Null-Termine. <b>Vorsicht beim Lesen:</b> EU Fit for 55 (Basis 1990) und IPCC 1,5 &deg;C (Basis 2010) sind volkswirtschaftliche bzw. globale Ziele mit eigenem Basisjahr; sie stehen hier zur Einordnung, nicht als Unternehmensziel. Ein Unternehmen an einem wachsenden Standort braucht unter Umst\u00e4nden einen steileren Pfad als der Durchschnitt.';
+  var quellenZeile='<div class="hint" style="margin-top:6px;font-size:11.5px">'+(en?'Sources: ':'Quellen: ')+NZ_PFADE_V3.map(function(x){return x.kurz+' \u2013 '+x.quelle;}).join(' \u00b7 ')+' \u00b7 '+(en?'Net-zero dates: Germany KSG Sec. 3 (2), EU Regulation 2021/1119, IEA Net Zero Roadmap.':'Netto-Null-Termine: Deutschland KSG \u00a7 3 Abs. 2, VO (EU) 2021/1119, IEA Net-Zero-Roadmap.')+'</div>';
+  return g+nzLeseV3(txt)+quellenZeile;
+}
+
+/* TEW-Fall aus Nachhaltigkeitsbericht 2024 und NetZero-Plan vorbelegen.
+   Werte ausschliesslich aus den Dokumenten - nichts geschaetzt, Luecken bleiben leer. */
+function nzLoadTewCaseV3(){
+  var en=state.lang==="en";
+  if(!confirm(en?"Load the documented TEW case? This replaces the current entries.":"Dokumentierten TEW-Fall laden? Die aktuellen Eingaben werden ersetzt."))return;
+  state.project.name="TEW Service GmbH \u00b7 Standort Dessau (BioPharmaPark)";
+  state.project.basisjahr=2024;      // Jahr der belegten Scope-Werte im Bericht
+  state.project.nearjahr=2030;       // Zwischenziel -40 %
+  state.project.zieljahr=2040;       // Net-Zero Scope 1+2
+  state.project.verantwortlich="";
+  state.project.nearreduktion=40;    // -40 % bis 2030 (Bericht, Basis 2015)
+  state.global.wachstum=2;           // Baseline +2 % p.a. laut NetZero-Plan
+  state.scopes.scope1.basisemission=7580;   // 2024, Bericht S.38
+  state.scopes.scope1.reduktionsziel=100;   // Net-Zero Scope 1+2 bis 2040
+  state.scopes.scope2.basisemission=2411;   // 2024, Bericht S.38
+  state.scopes.scope2.reduktionsziel=100;
+  state.scopes.scope3.basisemission=5600;   // konservativ geschaetzt, Bericht
+  state.scopes.scope3.reduktionsziel=0;     // kein dokumentiertes Scope-3-Ziel
+  // Die Rechnung zieht Scope 3 aus den Kategorien 1-15 (s3Sum), nicht aus basisemission.
+  // Der Bericht nennt nur eine Gesamtschaetzung ohne Kategorie-Aufteilung ("aktuell nicht
+  // erfasst durch TEW"), daher vollstaendig in Kategorie 1 geparkt und mit Qualitaet C
+  // (Schaetzung) markiert. Keine erfundene Verteilung auf Kategorien.
+  state.s3cats.forEach(function(c){ c.value=0; c.quality="A"; });
+  state.s3cats[0].value=5600; state.s3cats[0].quality="C";
+  if(state.quality){ state.quality.scope1="A"; state.quality.scope2="A"; }
+  state.massnahmen=[
+    {id:1,name:"Digitale Z\u00e4hlerinfrastruktur (Efficio\u2122)",scope:"scope1",wirkung:100,jahr:2027},
+    {id:2,name:"Betriebsoptimierung / WRG / Netzverdichtung",scope:"scope1",wirkung:200,jahr:2027},
+    {id:3,name:"PV-Ausbau 12 MWp",scope:"scope2",wirkung:1760,jahr:2028},
+    {id:4,name:"Zertifizierter Gr\u00fcnstrom (100 %)",scope:"scope2",wirkung:1000,jahr:2027},
+    {id:5,name:"Windkraft \u2192 Power-to-Heat",scope:"scope1",wirkung:3416,jahr:2032},
+    {id:6,name:"PV \u2192 Power-to-Heat",scope:"scope1",wirkung:1993,jahr:2032},
+    {id:7,name:"Flottenelektrifizierung",scope:"scope1",wirkung:80,jahr:2035},
+    {id:8,name:"Notstrom \u2192 HVO / Batterie",scope:"scope1",wirkung:50,jahr:2035},
+    {id:9,name:"Spitzenlastkessel \u2192 E-Kessel",scope:"scope1",wirkung:1500,jahr:2038}
+  ];
+  state.nextMassnahmeId=10;
+  state.neutralisierung.prozent=0;   // Bericht: keine Kompensation zur Zielerreichung
+  state.neutralisierung.beschreibung=en
+    ? "Report: no compensation used to reach the target (optional on top)."
+    : "Bericht: keine Kompensation zur Zielerreichung (optional \u201eon top\u201c).";
+  state.audit=state.audit||[];
+  state.audit.push({id:state.nextAuditId++,date:new Date().toISOString().slice(0,10),
+    author:"TEW-Fall",
+    note:en
+      ? "Loaded from TEW sustainability report 2024 and NetZero plan 2025-08-29. Scope 1/2 are 2024 actuals (7,580 / 2,411 t); Scope 3 is the report's conservative estimate (5,600 t). TEW uses 2015 as methodological base year - the full 2015 figures are not in the report, so 2024 is used here as the base. Measure effects from the roadmap table and the plan file. Limitations: (a) Scope 3 exists only as an aggregate estimate - with no category breakdown in the report it is booked entirely to category 1, quality C; (b) the Net Zero 2040 target and the -40 % by 2030 milestone apply to Scope 1+2 only per the report - Scope 3 therefore carries a 0 % reduction target and deliberately shows up as an open remainder in the gap chart."
+      : "Geladen aus TEW-Nachhaltigkeitsbericht 2024 und NetZero-Plan 2025-08-29. Scope 1/2 sind Ist-Werte 2024 (7.580 / 2.411 t); Scope 3 ist die konservative Sch\u00e4tzung des Berichts (5.600 t). TEW nutzt methodisch 2015 als Basisjahr \u2013 vollst\u00e4ndige 2015-Werte stehen nicht im Bericht, daher hier 2024 als Basis. Ma\u00dfnahmenwirkungen aus der Roadmap-Tabelle und der Plandatei. Einschr\u00e4nkungen: (a) Scope 3 liegt nur als Gesamtsch\u00e4tzung vor \u2013 mangels Kategorie-Aufteilung im Bericht vollst\u00e4ndig in Kategorie 1 gebucht, Qualit\u00e4t C; (b) das Ziel Net-Zero 2040 und das Zwischenziel \u201340 % bis 2030 gelten laut Bericht nur f\u00fcr Scope 1+2 \u2013 Scope 3 steht daher mit Reduktionsziel 0 % in der Bilanz und erscheint in der L\u00fccken-Grafik bewusst als offener Rest."});
+  renderAll(); scheduleAutosave();
+  alert(en?"TEW case loaded. See Audit trail for the data origin.":"TEW-Fall geladen. Die Datenherkunft steht im Audit-Trail.");
+}
 function nzChartsBlockV3(){
   var en=state.lang==="en";
   var karte=function(titel,inhalt){return '<div class="card"><h3>'+titel+'</h3>'+inhalt+'</div>';};
   return karte(en?"Which measure carries the most?":"Welche Ma\u00dfnahme tr\u00e4gt am meisten?",nzChartHebelV3())
        + karte(en?"Where is the gap?":"Wo klafft die L\u00fccke?",nzChartLueckeV3())
-       + karte(en?"Does the effect arrive in time?":"Kommt die Wirkung rechtzeitig?",nzChartZeitV3());
+       + karte(en?"Does the effect arrive in time?":"Kommt die Wirkung rechtzeitig?",nzChartZeitV3())
+       + karte(en?"How does the plan compare with SBTi, EU and IPCC?":"Wie steht der Plan zu SBTi, EU und IPCC?",nzChartPfadeV3());
 }
 function tabBigPictureV2(){
   const result = buildDashboardResult();
@@ -4229,6 +4393,7 @@ function wireActiveTab(){
     b("s4RegCsv",  typeof s4RegistryCsv==="function"?s4RegistryCsv:null);
     b("s4RegJson", typeof s4RegistryJson==="function"?s4RegistryJson:null);
     b("s4AuditMd", typeof s4AuditMd==="function"?s4AuditMd:null);
+    b("xTewCase", typeof nzLoadTewCaseV3==="function"?nzLoadTewCaseV3:null);
     /* kein return: die uebrigen Export-Handler (xCsv/xMd/xImg/Import …) folgen weiter unten */
   }
   if(tab==="rechner"){
