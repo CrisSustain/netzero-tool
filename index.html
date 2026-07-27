@@ -3501,13 +3501,153 @@ function resultBlockV2(result){
   ` : blockedResultsHtml(result);
 }
 /* Big Picture: Einstiegsseite mit dem Ergebnis - keine Eingabefelder (Muster Umwelt-Dashboard). */
+
+/* ===================== V3-Grafiken (Anwenderwunsch 27.07.) =====================
+   Drei Darstellungen, die je EINE Managementfrage beantworten und dafuer nur bereits
+   vorhandene Daten nutzen (state.massnahmen, rows aus buildDashboardResult):
+     1. nzChartHebelV3   - Welche Massnahme traegt am meisten? (Rangfolge + Anteil am Ziel)
+     2. nzChartLueckeV3  - Wo klafft die Luecke? (Deckungsgrad je Scope)
+     3. nzChartZeitV3    - Kommt die Wirkung rechtzeitig? (Wirkung je Jahr, kumuliert)
+   Gestaltung wie im uebrigen Tool: SVG ohne Fremdbibliothek, Farben aus den CSS-Variablen,
+   Einheit immer sichtbar, Leerzustand statt leerer Flaeche. Jede Grafik sagt darunter, was
+   man ablesen darf - und was ausdruecklich nicht. */
+function nzEscSvgV3(x){return String(x==null?"":x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function nzLeerV3(txt){return '<div class="empty-hint" style="padding:18px 8px;text-align:center">'+txt+'</div>';}
+function nzLeseV3(txt){return '<p class="hint" style="margin-top:8px;line-height:1.45">'+txt+'</p>';}
+
+function nzChartHebelV3(){
+  var en=state.lang==="en";
+  var res=buildDashboardResult();
+  if(!res.valid)return nzLeerV3(en?"Enter base year, target year and scope data first.":"Zuerst Basisjahr, Zieljahr und Scope-Daten eingeben.");
+  var ms=(state.massnahmen||[]).filter(function(m){return Number(m.wirkung)>0;});
+  if(!ms.length)return nzLeerV3(en?"No measures with an effect recorded yet.":"Noch keine Ma\u00dfnahmen mit Wirkung erfasst.");
+  var zielGes=res.rows.reduce(function(a,x){return a+(+x.zielreduktion||0);},0);
+  var sorted=ms.slice().sort(function(a,b){return b.wirkung-a.wirkung;});
+  var summe=sorted.reduce(function(a,m){return a+ +m.wirkung;},0);
+  var w=880,rowH=30,padL=210,padR=92,padT=16,padB=34;
+  var h=padT+padB+sorted.length*rowH, innerW=w-padL-padR;
+  var max=Math.max.apply(null,sorted.map(function(m){return +m.wirkung;}));
+  var farbe={scope1:"var(--danger)",scope2:"var(--warning)",scope3:"var(--accent)"};
+  var g='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="'+(en?"Contribution per measure":"Beitrag je Ma\u00dfnahme")+'">';
+  var kum=0;
+  sorted.forEach(function(m,i){
+    var y=padT+i*rowH, bw=Math.max(2,(+m.wirkung/max)*innerW);
+    kum+=+m.wirkung;
+    var antZiel=zielGes>0?(+m.wirkung/zielGes*100):null;
+    var kumPct=summe>0?(kum/summe*100):0;
+    var name=(m.name||(en?"(unnamed)":"(ohne Namen)")).slice(0,30);
+    g+='<text x="'+(padL-10)+'" y="'+(y+18)+'" text-anchor="end" font-size="12" fill="var(--text)">'+nzEscSvgV3(name)+'</text>';
+    g+='<rect x="'+padL+'" y="'+(y+5)+'" width="'+bw.toFixed(1)+'" height="'+(rowH-12)+'" rx="3" fill="'+(farbe[m.scope]||"var(--accent)")+'" opacity=".85">'
+      +'<title>'+nzEscSvgV3(name)+' \u00b7 '+t(m.scope)+' \u00b7 '+fmtT(+m.wirkung)+' t CO\u2082e'
+      +(antZiel!=null?' \u00b7 '+(en?"share of total target":"Anteil am Gesamtziel")+': '+antZiel.toFixed(1)+' %':'')
+      +' \u00b7 '+(en?"cumulative":"kumuliert")+': '+kumPct.toFixed(0)+' %</title></rect>';
+    g+='<text x="'+(padL+bw+8)+'" y="'+(y+18)+'" font-size="11.5" fill="var(--text-muted)">'+fmtT(+m.wirkung)+' t'
+      +(antZiel!=null?' \u00b7 '+antZiel.toFixed(1)+' %':'')+'</text>';
+  });
+  g+='<text x="'+padL+'" y="'+(h-12)+'" font-size="11" fill="var(--text-muted)">'+(en?"Effect in t CO\u2082e - longest bar = biggest lever":"Wirkung in t CO\u2082e - l\u00e4ngster Balken = gr\u00f6\u00dfter Hebel")+'</text>';
+  g+='</svg>';
+  var top=sorted[0], topPct=zielGes>0?(+top.wirkung/zielGes*100):null;
+  var anteilGes=zielGes>0?(summe/zielGes*100):null;
+  var txt=en
+    ? 'Measures sorted by effect. The percentage is the share of the <b>total target reduction</b> ('+fmtT(zielGes)+' t). Strongest lever: <b>'+nzEscSvgV3((top.name||"-").slice(0,28))+'</b>'+(topPct!=null?' with '+topPct.toFixed(1)+' %':'')+'. All measures together cover '+(anteilGes!=null?anteilGes.toFixed(1)+' %':'-')+' of the target. Colour marks the scope. What this does not say: whether a measure is cheap, realistic or already decided - it ranks effect only.'
+    : 'Ma\u00dfnahmen nach Wirkung sortiert. Der Prozentwert ist der Anteil an der <b>gesamten Zielreduktion</b> ('+fmtT(zielGes)+' t). Gr\u00f6\u00dfter Hebel: <b>'+nzEscSvgV3((top.name||"-").slice(0,28))+'</b>'+(topPct!=null?' mit '+topPct.toFixed(1)+' %':'')+'. Alle Ma\u00dfnahmen zusammen decken '+(anteilGes!=null?anteilGes.toFixed(1)+' %':'-')+' des Ziels. Die Farbe kennzeichnet den Scope. Was die Grafik nicht sagt: ob eine Ma\u00dfnahme g\u00fcnstig, realistisch oder schon beschlossen ist - sie ordnet allein nach Wirkung.';
+  return g+nzLeseV3(txt);
+}
+
+function nzChartLueckeV3(){
+  var en=state.lang==="en";
+  var res=buildDashboardResult();
+  if(!res.valid)return nzLeerV3(en?"Enter base year, target year and scope data first.":"Zuerst Basisjahr, Zieljahr und Scope-Daten eingeben.");
+  var rows=res.rows.filter(function(x){return (+x.zielreduktion||0)>0;});
+  if(!rows.length)return nzLeerV3(en?"No scope has a reduction target yet.":"Noch kein Scope mit Reduktionsziel.");
+  var w=880,rowH=54,padL=104,padR=120,padT=14,padB=30;
+  var h=padT+padB+rows.length*rowH, innerW=w-padL-padR;
+  var g='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="'+(en?"Coverage per scope":"Deckungsgrad je Scope")+'">';
+  rows.forEach(function(r,i){
+    var y=padT+i*rowH;
+    var ziel=+r.zielreduktion||0, ist=+r.massnahmensumme||0;
+    var pct=ziel>0?Math.min(ist/ziel,1):0, echt=ziel>0?ist/ziel*100:0;
+    var col=echt>=100?"var(--success)":echt>=50?"var(--warning)":"var(--danger)";
+    g+='<text x="'+(padL-12)+'" y="'+(y+26)+'" text-anchor="end" font-size="12.5" fill="var(--text)">'+t(r.scope)+'</text>';
+    g+='<rect x="'+padL+'" y="'+(y+8)+'" width="'+innerW+'" height="24" rx="4" fill="var(--text-muted)" opacity=".16"><title>'+(en?"Target":"Ziel")+': '+fmtT(ziel)+' t CO\u2082e</title></rect>';
+    g+='<rect x="'+padL+'" y="'+(y+8)+'" width="'+(pct*innerW).toFixed(1)+'" height="24" rx="4" fill="'+col+'" opacity=".9">'
+      +'<title>'+t(r.scope)+' \u00b7 '+(en?"measures":"Ma\u00dfnahmen")+' '+fmtT(ist)+' t '+(en?"of":"von")+' '+fmtT(ziel)+' t \u00b7 '+echt.toFixed(1)+' %</title></rect>';
+    if(echt<100)g+='<text x="'+(padL+innerW)+'" y="'+(y+45)+'" text-anchor="end" font-size="10.5" fill="var(--text-muted)">'+(en?"gap":"L\u00fccke")+' '+fmtT(ziel-ist)+' t</text>';
+    g+='<text x="'+(padL+innerW+10)+'" y="'+(y+26)+'" font-size="13" font-weight="600" fill="'+col+'">'+echt.toFixed(0)+' %</text>';
+  });
+  g+='<text x="'+padL+'" y="'+(h-10)+'" font-size="11" fill="var(--text-muted)">'+(en?"Bar = share of the scope target already covered by measures":"Balken = Anteil des Scope-Ziels, den Ma\u00dfnahmen bereits decken")+'</text>';
+  g+='</svg>';
+  var luecke=rows.filter(function(r){return (+r.massnahmensumme||0)<(+r.zielreduktion||0);});
+  var groesste=luecke.slice().sort(function(a,b){return ((+b.zielreduktion-+b.massnahmensumme)-(+a.zielreduktion-+a.massnahmensumme));})[0];
+  var txt=en
+    ? 'How much of each scope target the recorded measures already cover. Green from 100 %, amber from 50 %, red below. '+(groesste?'Largest gap: <b>'+t(groesste.scope)+'</b> with '+fmtT((+groesste.zielreduktion)-(+groesste.massnahmensumme))+' t still unaddressed.':'All scope targets are fully covered by measures.')+' A full bar means the arithmetic adds up - not that the measures are implemented.'
+    : 'Wie viel des jeweiligen Scope-Ziels die erfassten Ma\u00dfnahmen bereits decken. Gr\u00fcn ab 100 %, gelb ab 50 %, rot darunter. '+(groesste?'Gr\u00f6\u00dfte L\u00fccke: <b>'+t(groesste.scope)+'</b> mit '+fmtT((+groesste.zielreduktion)-(+groesste.massnahmensumme))+' t ohne hinterlegte Ma\u00dfnahme.':'Alle Scope-Ziele sind rechnerisch durch Ma\u00dfnahmen gedeckt.')+' Ein voller Balken hei\u00dft, dass die Rechnung aufgeht - nicht, dass die Ma\u00dfnahmen umgesetzt sind.';
+  return g+nzLeseV3(txt);
+}
+
+function nzChartZeitV3(){
+  var en=state.lang==="en";
+  var res=buildDashboardResult();
+  if(!res.valid)return nzLeerV3(en?"Enter base year, target year and scope data first.":"Zuerst Basisjahr, Zieljahr und Scope-Daten eingeben.");
+  var ms=(state.massnahmen||[]).filter(function(m){return Number(m.wirkung)>0&&Number(m.jahr);});
+  if(!ms.length)return nzLeerV3(en?"No measures with an effective year recorded yet.":"Noch keine Ma\u00dfnahmen mit Wirkungsjahr erfasst.");
+  var zielJahr=+state.project.zieljahr, basisJahr=+state.project.basisjahr;
+  if(!(zielJahr>basisJahr))return nzLeerV3(en?"Target year must be after the base year.":"Das Zieljahr muss nach dem Basisjahr liegen.");
+  var jahre=[];for(var y=basisJahr;y<=zielJahr;y++)jahre.push(y);
+  var zielGes=res.rows.reduce(function(a,x){return a+(+x.zielreduktion||0);},0);
+  var kum=0;
+  var punkte=jahre.map(function(yy){
+    kum+=ms.filter(function(m){return +m.jahr===yy;}).reduce(function(a,m){return a+ +m.wirkung;},0);
+    return {y:yy,kum:kum};
+  });
+  var maxY=Math.max(zielGes,kum)||1;
+  var w=880,h=300,padL=70,padR=20,padT=18,padB=42,innerW=w-padL-padR,innerH=h-padT-padB;
+  var X=function(yy){return padL+((yy-basisJahr)/(zielJahr-basisJahr))*innerW;};
+  var Y=function(v){return padT+innerH-(v/maxY)*innerH;};
+  var g='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="'+(en?"Timing of measures":"Zeitliche Wirkung der Ma\u00dfnahmen")+'">';
+  [0,.25,.5,.75,1].forEach(function(f){var v=maxY*f,yy=Y(v);
+    g+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(w-padR)+'" y2="'+yy+'" stroke="var(--text-muted)" opacity=".18"/>'
+      +'<text x="'+(padL-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="10.5" fill="var(--text-muted)">'+fmtT(v)+'</text>';});
+  if(zielGes>0){
+    g+='<line x1="'+padL+'" y1="'+Y(zielGes)+'" x2="'+(w-padR)+'" y2="'+Y(zielGes)+'" stroke="var(--success)" stroke-width="1.6" stroke-dasharray="7 5"><title>'+(en?"Total target reduction":"Gesamte Zielreduktion")+': '+fmtT(zielGes)+' t</title></line>';
+    g+='<text x="'+(w-padR)+'" y="'+(Y(zielGes)-7)+'" text-anchor="end" font-size="11" fill="var(--success)">'+(en?"target":"Ziel")+' '+fmtT(zielGes)+' t</text>';
+  }
+  var d=punkte.map(function(p2,i){return (i?"L":"M")+X(p2.y).toFixed(1)+","+Y(p2.kum).toFixed(1);}).join(" ");
+  g+='<path d="'+d+'" fill="none" stroke="var(--accent)" stroke-width="2.4"/>';
+  punkte.forEach(function(p2){
+    var neu=ms.filter(function(m){return +m.jahr===p2.y;});
+    if(neu.length)g+='<circle cx="'+X(p2.y).toFixed(1)+'" cy="'+Y(p2.kum).toFixed(1)+'" r="4.5" fill="var(--accent)">'
+      +'<title>'+p2.y+': '+neu.map(function(m){return nzEscSvgV3((m.name||"-").slice(0,24))+" "+fmtT(+m.wirkung)+" t";}).join(" \u00b7 ")+' \u00b7 '+(en?"cumulative":"kumuliert")+' '+fmtT(p2.kum)+' t</title></circle>';
+  });
+  jahre.forEach(function(yy,i){
+    if(jahre.length<=12||i%Math.ceil(jahre.length/10)===0||yy===zielJahr)
+      g+='<text x="'+X(yy).toFixed(1)+'" y="'+(h-16)+'" text-anchor="middle" font-size="10.5" fill="var(--text-muted)">'+yy+'</text>';
+  });
+  g+='<text x="'+padL+'" y="'+(h-3)+'" font-size="10.5" fill="var(--text-muted)">'+(en?"Cumulative effect of measures in t CO\u2082e":"Kumulierte Ma\u00dfnahmenwirkung in t CO\u2082e")+'</text>';
+  g+='</svg>';
+  var spaet=ms.filter(function(m){return +m.jahr>=zielJahr;}).reduce(function(a,m){return a+ +m.wirkung;},0);
+  var spaetPct=kum>0?spaet/kum*100:0;
+  var txt=en
+    ? 'When the recorded measures take full effect, added up over the years. The dashed line is the total target reduction - where the curve meets it, the target is arithmetically reached. '+(spaetPct>0?'<b>'+spaetPct.toFixed(0)+' %</b> of the total effect only arrives in the target year '+zielJahr+' itself, which leaves no buffer if something is delayed.':'All measures take effect before the target year.')+' The line shows planned effect, not verified reductions.'
+    : 'Wann die erfassten Ma\u00dfnahmen voll wirken, \u00fcber die Jahre aufsummiert. Die gestrichelte Linie ist die gesamte Zielreduktion - wo die Kurve sie trifft, ist das Ziel rechnerisch erreicht. '+(spaetPct>0?'<b>'+spaetPct.toFixed(0)+' %</b> der Gesamtwirkung fallen erst im Zieljahr '+zielJahr+' selbst an; verz\u00f6gert sich dort etwas, fehlt jeder Puffer.':'Alle Ma\u00dfnahmen wirken vor dem Zieljahr.')+' Die Linie zeigt geplante Wirkung, keine nachgewiesene Reduktion.';
+  return g+nzLeseV3(txt);
+}
+
+function nzChartsBlockV3(){
+  var en=state.lang==="en";
+  var karte=function(titel,inhalt){return '<div class="card"><h3>'+titel+'</h3>'+inhalt+'</div>';};
+  return karte(en?"Which measure carries the most?":"Welche Ma\u00dfnahme tr\u00e4gt am meisten?",nzChartHebelV3())
+       + karte(en?"Where is the gap?":"Wo klafft die L\u00fccke?",nzChartLueckeV3())
+       + karte(en?"Does the effect arrive in time?":"Kommt die Wirkung rechtzeitig?",nzChartZeitV3());
+}
 function tabBigPictureV2(){
   const result = buildDashboardResult();
   const p = state.project;
   return `<h2>${t("tab_bigpicture")}</h2>
   <div class="card notice-card-v2"><b>${esc(p.name||"")}</b> · ${t("f_basisjahr")} ${p.basisjahr} → ${t("f_zieljahr")} ${p.zieljahr}
     <span class="hint" style="margin-left:8px">${t("bigpicture_hint")}</span></div>
-  ${resultBlockV2(result)}`;
+  ${resultBlockV2(result)}
+  ${nzChartsBlockV3()}`;
 }
 /* ===== V3: Echter Management-Bericht fuer Druck/PDF =====
    Vorher rief der Druck-Knopf nur window.print() auf - gedruckt wurde also die gerade
