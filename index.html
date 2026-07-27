@@ -1964,14 +1964,18 @@ function rechenwegeInnerV3(){
       en?"target = BAU(target year) × reduction target %":"Zielreduktion = BAU(Zieljahr) × Reduktionsziel %",
       en?"The target is measured against the BAU path, not against the base year — that is the stricter and the usual reading."
         :"Das Ziel bemisst sich am BAU-Pfad, nicht am Basisjahr — das ist die strengere und die übliche Lesart.")}
-    ${f(en?"Coverage":"Deckungsgrad",
-      en?"coverage = sum of measures ÷ target reduction":"Deckungsgrad = Summe der Maßnahmen ÷ Zielreduktion",
-      en?"Above 100 % the measures more than cover the target. Below, the gap is the shortfall that still needs measures."
-        :"Über 100 % tragen die Maßnahmen mehr als das Ziel verlangt. Darunter ist die Lücke der Fehlbetrag, für den noch Maßnahmen fehlen.")}
+    ${f(en?"Coverage (per scope)":"Deckungsgrad (je Scope)",
+      en?"coverage = measures in this scope ÷ target reduction of this scope":"Deckungsgrad = Maßnahmen dieses Scopes ÷ Zielreduktion dieses Scopes",
+      en?"Above 100 % the measures more than cover that scope's target; below, the gap is the shortfall."
+        :"Über 100 % tragen die Maßnahmen mehr als das Ziel dieses Scopes verlangt; darunter ist die Lücke der Fehlbetrag.")}
+    ${f(en?"Overall coverage — the weakest scope":"Gesamt-Deckungsgrad — der schwächste Scope",
+      en?"overall = MINIMUM of the scope coverages (not their average)":"Gesamt = MINIMUM der Scope-Deckungsgrade (nicht deren Mittelwert)",
+      en?"Deliberately conservative: a scope without measures pulls the overall figure to 0 %, even if another scope is fully covered. That is why the number can stay at 0 % although measures exist — a strong Scope 1 must not paper over an untouched Scope 2. Scopes without a target are not counted."
+        :"Bewusst konservativ: Ein Scope ohne Maßnahmen zieht den Gesamtwert auf 0 %, auch wenn ein anderer Scope vollständig gedeckt ist. Deshalb kann die Zahl bei 0 % stehen, obwohl Maßnahmen vorhanden sind — ein starker Scope 1 soll einen unbearbeiteten Scope 2 nicht überdecken. Scopes ohne Ziel zählen nicht mit.")}
     ${f(en?"Net emission":"Netto-Emission",
-      en?"net = BAU(target year) − measures − neutralisation":"Netto = BAU(Zieljahr) − Maßnahmen − Neutralisierung",
-      en?"What remains after everything. Neutralisation is deliberately shown separately — reduction first, compensation last."
-        :"Was am Ende übrig bleibt. Die Neutralisierung steht bewusst getrennt — erst reduzieren, dann kompensieren.")}
+      en?"net = BAU(target year) − target reduction − neutralisation":"Netto = BAU(Zieljahr) − Zielreduktion − Neutralisierung",
+      en?"Careful: this subtracts the TARGET, not the measures — it shows what remains <b>if the target is met</b>. Whether the measures actually carry that target is answered by the coverage, not by this figure. Neutralisation is shown separately: reduction first, compensation last."
+        :"Wichtig: Abgezogen wird das ZIEL, nicht die Maßnahmen — die Zahl zeigt, was übrig bleibt, <b>wenn das Ziel erreicht wird</b>. Ob die Maßnahmen dieses Ziel tatsächlich tragen, beantwortet der Deckungsgrad, nicht dieser Wert. Die Neutralisierung steht getrennt: erst reduzieren, dann kompensieren.")}
     <p class="hint">${en
       ? "Rounding happens only for display; the calculation runs on unrounded values. Sources and assumptions belong under Audit trail, the factors for the equivalents are listed there too."
       : "Gerundet wird nur für die Anzeige, gerechnet mit ungerundeten Werten. Quellen und Annahmen gehören unter Audit-Trail, dort stehen auch die Faktoren der Äquivalente."}</p>
@@ -4226,18 +4230,12 @@ function wireActiveTab(){
     const cq = document.getElementById("cq_value");
     if(cq) cq.addEventListener("input",()=>{ document.getElementById("cq_results").innerHTML = co2QuickRows(cq.value); });
   }
-  if(tab==="managementexport"){
-    document.getElementById("expJson").onclick = downloadJson;
-    document.getElementById("expImport").onclick = ()=> document.getElementById("fileLoad").click();
-    document.getElementById("expA4").onclick = ()=>{
-      const r = buildDashboardResult();
-      if(!r.valid){ alert(t("err_export_blocked")+"\n\n"+r.errors.map(e=>"- "+e.msg).join("\n")); return; }
-      openPrint(t("exp_a4"), reportA4());
-    };
-    document.getElementById("expPdf").onclick = ()=> window.print();
-    document.getElementById("expExcel").onclick = downloadExcel;
-    document.getElementById("expMassCsv").onclick = ()=> document.getElementById("csvLoad").click();
-  }
+  /* V3 (Review 27.07.2026): Hier stand die Verdrahtung fuer den Reiter "managementexport".
+     Den gibt es seit dem V2-Umbau nicht mehr — die sechs Knopf-IDs (expJson, expImport, expA4,
+     expPdf, expExcel, expMassCsv) existieren in keinem Reiter, der Zweig lief also nie.
+     Alle Funktionen sind im Reiter "Export/Import" abgedeckt: xExportJson, xImportJson,
+     xPrint (A4/Druck), xExcel6, xImportCsv. Toter Code entfernt — die ungeschuetzten
+     Zugriffe darin waeren bei einer Reaktivierung des Namens sofort abgestuerzt. */
 }
 
 function bindText(elId, group, field){
