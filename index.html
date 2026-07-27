@@ -3382,8 +3382,27 @@ function nzPrintReportV3(){
    Reglers unmittelbar, wie sich die Bruecke veraendert; der ausfuehrliche Rechner bleibt
    unveraendert fuer die eigentliche Dateneingabe. Es werden dieselben Zustandsfelder und
    dieselbe Berechnung genutzt - kein zweiter Datenpfad. ===== */
+/* V3-Fix (Review 27.07.2026, Anwenderfund "Slider reagieren nicht"): Der Ergebnisbereich
+   (KPIs + Wasserfall) steckte fest im Tab-Markup. Die Reglerverdrahtung lag ausserdem nur im
+   Zweig tab==="rechner" — im Simulator hatten die Regler daher gar keine Handler.
+   Der Ergebnisbereich ist jetzt eine eigene Funktion, damit beim Ziehen NUR er neu gezeichnet
+   wird: wuerde der ganze Tab neu rendern, verlaere der Regler den Fokus und das Ziehen bricht ab. */
+function simStageHtmlV3(){
+  const result=buildDashboardResult();
+  const kpis=result.valid?`<div class="sim-kpis">
+    <div class="sim-kpi"><span>${t("kpi_zielreduktion")}</span><b>${fmtT(result.totalZiel)}</b></div>
+    <div class="sim-kpi"><span>${t("kpi_massnahmen")}</span><b>${fmtT(result.totalMassnahmen)}</b></div>
+    <div class="sim-kpi ${covTone(result.overallCov)}"><span>${t("kpi_deckungsgrad")}</span><b>${covText(result.overallCov)}</b></div>
+    <div class="sim-kpi ${nettoTone(result)}"><span>${t("kpi_nettogesamt")}</span><b>${fmtT(result.nettoGesamt)}</b></div>
+  </div>`:"";
+  const chart=result.valid?drawWaterfallChart(result.final):`<div class="empty-hint">${t("sim_blocked")}</div>`;
+  return `<div class="card sim-chart-card"><h3>${t("h_waterfallchart")}</h3>
+        ${kpis}
+        <div id="waterfallChartHost" class="sim-chart">${chart}</div>
+      </div>`;
+}
 function tabSimulatorV2(){
-  const p=state.project, result=buildDashboardResult();
+  const p=state.project;
   if(state.simPanelOpen===undefined)state.simPanelOpen=true;
   const open=state.simPanelOpen;
   /* Regler je Scope + Near-Term - bewusst nur die Stellgroessen, keine Stammdaten. */
@@ -3395,23 +3414,11 @@ function tabSimulatorV2(){
       <div class="sim-slider-sub">${t("f_basisemission")}: ${fmtT(sk==="scope3"?s3Sum():s.basisemission)} ${t("unit_t")}</div>
     </div>`;
   }).join("");
-  const kpis=result.valid?`<div class="sim-kpis">
-    <div class="sim-kpi"><span>${t("kpi_zielreduktion")}</span><b>${fmtT(result.totalZiel)}</b></div>
-    <div class="sim-kpi"><span>${t("kpi_massnahmen")}</span><b>${fmtT(result.totalMassnahmen)}</b></div>
-    <div class="sim-kpi ${covTone(result.overallCov)}"><span>${t("kpi_deckungsgrad")}</span><b>${covText(result.overallCov)}</b></div>
-    <div class="sim-kpi ${nettoTone(result)}"><span>${t("kpi_nettogesamt")}</span><b>${fmtT(result.nettoGesamt)}</b></div>
-  </div>`:"";
-  const chart=result.valid?drawWaterfallChart(result.final):`<div class="empty-hint">${t("sim_blocked")}</div>`;
   return `<h2>${t("tab_simulator")}</h2>
   <div class="card notice-card-v2"><b>${esc(p.name||"")}</b> · ${p.basisjahr} → ${p.zieljahr}
     <span class="hint" style="margin-left:8px">${t("sim_hint")}</span></div>
   <div class="sim-wrap${open?"":" panel-closed"}">
-    <div class="sim-stage">
-      <div class="card sim-chart-card"><h3>${t("h_waterfallchart")}</h3>
-        ${kpis}
-        <div id="waterfallChartHost" class="sim-chart">${chart}</div>
-      </div>
-    </div>
+    <div class="sim-stage">${simStageHtmlV3()}</div>
     <aside class="sim-panel">
       <button type="button" class="sim-panel-toggle" id="simPanelToggle" title="${t("sim_toggle")}" aria-label="${t("sim_toggle")}">${open?"\u25B8":"\u25C2"}</button>
       <div class="sim-panel-inner">
@@ -3943,6 +3950,30 @@ function wireActiveTab(){
       };
     });
     renderImpacts(buildDashboardResult());
+  }
+  if(tab==="simulator"){
+    /* V3-Fix: Regler des Simulators verdrahten (lagen bisher nur im "rechner"-Zweig).
+       Beim Ziehen wird ausschliesslich der Ergebnisbereich neu gezeichnet. */
+    const stage=()=>{const el=document.querySelector(".sim-stage");if(el)el.innerHTML=simStageHtmlV3();};
+    document.querySelectorAll(".sim-panel [data-scope]").forEach(el=>{
+      const scope=el.dataset.scope, field=el.dataset.sf;
+      el.addEventListener("input",()=>{
+        state.scopes[scope][field]=Number(el.value);
+        const lab=document.getElementById("simval_"+scope); if(lab)lab.textContent=el.value+"%";
+        stage(); scheduleAutosave();
+      });
+    });
+    const near=document.getElementById("p_nearreduktion");
+    if(near)near.addEventListener("input",()=>{
+      state.project.nearreduktion=Number(near.value);
+      const lab=document.getElementById("simval_near"); if(lab)lab.textContent=near.value+"%";
+      stage(); scheduleAutosave();
+    });
+    const wg=document.getElementById("g_wachstum");
+    if(wg)wg.addEventListener("input",()=>{
+      state.global.wachstum=Number(wg.value);
+      stage(); scheduleAutosave();
+    });
   }
   if(tab==="audit"){
     /* V3-Fix (Review 27.07.2026, Lehre 18 Werkzeugbau): Der Reiter "Audit-Trail" zeigt seit
