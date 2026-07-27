@@ -180,10 +180,29 @@ main{padding:20px 24px;max-width:none;margin:0}
   width:34px;height:32px;cursor:pointer;font-size:15px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
 .theme-toggle:hover{border-color:var(--accent);background:var(--accent-dim)}
 /* Sticky-Eingabeleiste (Projektrahmen) - einklappbar wie die Filterleiste im Dashboard */
+/* V3-Fix (Review 27.07.2026, Anwenderfund "die zwei Menue-Fenster ueberlappen"): Im Markup
+   stand zusaetzlich style="position:relative" — vermutlich fuer den absolut positionierten
+   Einklapp-Knopf. Das Inline-Style gewinnt gegen jede Regel hier und machte aus dem sticky ein
+   relative: bei relative verschiebt top:56px das Element sichtbar nach unten, OHNE dass sein
+   Platz im Fluss mitwandert — die Folgekarte "Scope-Parameter" wurde dadurch um 40 px
+   ueberlappt. Ein sticky-Element ist selbst ein Positionierungskontext, der Knopf braucht das
+   relative also nicht. */
 .stickybar-v2{position:sticky;top:56px;z-index:18;background:rgba(255,255,255,.04);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);
   padding:12px 40px 12px 14px;margin-bottom:16px;transition:padding .2s cubic-bezier(.77,0,.175,1)}
 .stickybar-v2.is-collapsed{padding-top:6px;padding-bottom:6px;min-height:40px}
+/* V3-Fix (Anwenderfund 27.07.: "der Overlap ist noch immer von den zwei Menuefenstern"):
+   Die Projektangaben-Karte klebt beim Scrollen. Ausgeklappt ist sie rund 470 px hoch — auf
+   einem 720-px-Fenster legt sie sich damit ueber die darunterliegende Karte, statt nur einen
+   Kopf stehen zu lassen. Sticky bleibt deshalb nur, wenn das Fenster hoch genug ist; auf
+   flacheren Bildschirmen scrollt sie normal mit. Eingeklappt (40 px) klebt sie immer. */
+@media (max-height:900px){
+  /* relative statt static: der Einklapp-Knopf ist absolut positioniert und braucht einen
+     Bezugsrahmen — bei static richtete er sich am naechsten positionierten Vorfahren aus und
+     sass ausserhalb der Karte. top:auto hebt den 56-px-Versatz der Basisregel auf, sonst
+     wuerde relative die Karte sichtbar verschieben, ohne ihren Platz mitzunehmen. */
+  .stickybar-v2:not(.is-collapsed){position:relative;top:auto;backdrop-filter:none;-webkit-backdrop-filter:none}
+}
 .stickybar-v2.is-collapsed>.grid,.stickybar-v2.is-collapsed>h3{display:none}
 .stickybar-toggle{position:absolute;top:6px;right:8px;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);
   border-radius:4px;width:26px;height:24px;cursor:pointer;font-size:12px;line-height:1}
@@ -797,7 +816,7 @@ badge_saved_hint:"Alle Eingaben liegen im Speicher dieses Browsers und sind beim
      gebuendelten Export/Import-Bereich. */
   tab_bigpicture:"Big Picture",
   tab_methodik:"Methodik",
-  tab_audit:"Audit-Trail",
+  tab_audit:"Audit-Trail / Verifizierung",
   tab_exportimport:"Export / Import",
   m_sub_doku:"Rechenwege",
   bigpicture_hint:"Ergebnisübersicht — Eingaben im Reiter „Rechner“.",
@@ -1273,7 +1292,7 @@ badge_saved_hint:"All inputs are stored in this browser and will still be there 
      gebuendelten Export/Import-Bereich. */
   tab_bigpicture:"Big Picture",
   tab_methodik:"Methodology",
-  tab_audit:"Audit trail",
+  tab_audit:"Audit trail / verification",
   tab_exportimport:"Export / Import",
   m_sub_doku:"Calculations",
   bigpicture_hint:"Results overview — inputs are in the \"Calculator\" tab.",
@@ -3643,7 +3662,7 @@ function tabRechner(){
   return `<h2>${t("h_rechner")}</h2>
   <div class="warn-box" id="warnBox" style="display:none"></div>
   
-  <div class="card stickybar-v2${state.stickyCollapsed?" is-collapsed":""}" style="position:relative"><button type="button" class="stickybar-toggle no-print" id="stickyToggleV2" title="${t('sticky_toggle')}" aria-label="${t('sticky_toggle')}">${state.stickyCollapsed?"\u25B8":"\u25BE"}</button><h3>${t("h_projekt")}</h3><div class="grid">
+  <div class="card stickybar-v2${state.stickyCollapsed?" is-collapsed":""}"><button type="button" class="stickybar-toggle no-print" id="stickyToggleV2" title="${t('sticky_toggle')}" aria-label="${t('sticky_toggle')}">${state.stickyCollapsed?"\u25B8":"\u25BE"}</button><h3>${t("h_projekt")}</h3><div class="grid">
     <div class="field"><label>${t("f_name")}</label><input type="text" id="p_name" value="${esc(p.name)}"></div>
     <div class="field"><label>${t("f_basisjahr")}</label><input type="number" id="p_basisjahr" value="${p.basisjahr}"></div>
     <div class="field"><label>${t("f_nearjahr")}${info("nearjahr")}</label><input type="number" id="p_nearjahr" value="${p.nearjahr}"></div>
