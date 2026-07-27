@@ -44,6 +44,11 @@ input[type=text],input[type=number],input[type=date],select,textarea{
   border-radius:var(--radius-sm);padding:8px 9px;font-size:.88rem;font-family:var(--font)
 }
 input[type=range]{width:100%;accent-color:var(--accent)}
+/* V3 (Anwenderfund 27.07.): Die Auf/Ab-Pfeile der Zahlenfelder wurden vom Browser hell
+   gezeichnet und stachen im dunklen Design als weisser Block hervor. color-scheme sagt dem
+   Browser, dass er die nativen Bedienelemente dunkel rendern soll — wirkt ohne Nachbau. */
+input[type=number]{color-scheme:dark}
+:root[data-theme="light"] input[type=number]{color-scheme:light}
 textarea{min-height:70px;resize:vertical}
 .field{margin-bottom:12px}
 table{width:100%;border-collapse:collapse;font-size:.83rem}
@@ -610,6 +615,13 @@ de:{
   help_s4netcost:"Netto-Investitions-/Projektkosten für die Vermeidungskosten (€/t). Nur für die Kennzahl, verändert die vermiedenen Emissionen nicht.",
   help_s4template:"Wählt die Berechnungsformel und die benötigten Eingabefelder. „Generisch“ erlaubt beliebige Aktivität × Faktor für Baseline und Projekt.",
   help_s4baselinejust:"Pflicht für Auditfähigkeit: Warum ist diese Baseline die richtige Vergleichsbasis? Ohne Begründung gilt die Berechnung als nicht auditfähig.",
+  /* V3 (Anwenderwunsch 27.07.): Laienerklaerungen fuer die Auswahlmenues in Scope 4 —
+     was bewirkt die Eingabe, wozu ist sie gut. */
+  help_s4baselinetype:"Womit vergleichst du? Die Baseline ist die Welt OHNE dein Projekt. „Ist-Zustand“ = was heute läuft, „Marktdurchschnitt“ = was üblich ist, „gesetzliches Minimum“ = was mindestens vorgeschrieben wäre. Je anspruchsvoller die Baseline, desto kleiner die ausgewiesene Einsparung — und desto belastbarer die Aussage.",
+  help_s4source:"Woher stammt der Wert? Die Auswahl hält fest, auf welchen Standard oder welche Datenquelle du dich stützt. In einer Prüfung ist das die erste Frage — ohne Quelle bleibt die Zahl eine Behauptung.",
+  help_s4uncertainty:"Wie sicher ist die Zahl? „gering“ = gemessen oder gut belegt, „mittel“ = plausibel abgeleitet, „hoch“ = grobe Schätzung. Das ändert das Ergebnis nicht, macht aber sichtbar, wie belastbar es ist, und fließt in den Datenqualitätsindex ein.",
+  help_s4systemboundary:"Was zählt dazu? Halte fest, worauf sich die Einsparung bezieht (z. B. Standort, Produkt, Kunde, Lieferkette). Ohne Grenze lässt sich nicht prüfen, ob etwas doppelt gezählt wurde.",
+  help_s4projectjust:"Technische Annahmen des Projektszenarios: Laufzeit, Auslastung, Wirkungsgrade, Randbedingungen. Diese Angaben machen später nachvollziehbar, wie du auf die Projektwerte gekommen bist.",
   help_s4quality:"Bewertet <b>nur das oben ausgewählte Scope-4-Projekt</b> — nicht die Treibhausgasbilanz. Deren Datenqualität steht getrennt im Rechner unter „Datenqualität (ISO 14064-1)“. Selbstbewertung 0–100 nach sieben Kriterien: ab 80 hoch belastbar, unter 40 nicht berichtsfähig. Die Punkte je Kriterium sind rechts angegeben.",
   co2_override:"überschrieben", co2_unit_trees:"Bäume", co2_stems:"Stämme/ha",
   unc_low:"niedrig", unc_medium:"mittel", unc_high:"hoch",
@@ -678,7 +690,7 @@ de:{
   ported_disclaimer_note:"Portiert aus reference/IDT_NetZero_Management_Tool_v5.html, Funktionen readInputs(), calcForYear(), measureSums(), coverage().",
   m_disclaimer:"Die Formeln bilden den Net-Zero-Reduktionspfad ab: BAU-Wachstum (linear zwischen Basis- und Zieljahr hochgefahren), Zielreduktion je Scope, Maßnahmen-Deckungsgrad, Neutralisierung und Netto-Emission. Das Tool ist ein Management- und Steuerungsinstrument; die Bewertung erfolgt je Scope inkl. Datenqualitäts-Tagging (A–D).",
 
-  h_audit:"Audit & Doku", p_audit:"Nachvollziehbare Dokumentation von Annahmen, Datenquellen und Änderungen am Projektstand.",
+  h_audit:"Datenverifizierung", p_audit:"Nachvollziehbare Dokumentation von Annahmen, Datenquellen und Änderungen am Projektstand — der Nachweis hinter jeder Zahl.",
   f_audit_note:"Neuer Eintrag", f_audit_author:"Autor", f_add_audit:"+ Eintrag hinzufügen", th_datum:"Datum", th_autor:"Autor", th_notiz:"Notiz",
   noAudit:"Noch keine Audit-Einträge vorhanden.",
 
@@ -787,7 +799,7 @@ badge_saved_hint:"Alle Eingaben liegen im Speicher dieses Browsers und sind beim
   tab_methodik:"Methodik",
   tab_audit:"Audit-Trail",
   tab_exportimport:"Export / Import",
-  m_sub_doku:"Rechenwege & Doku",
+  m_sub_doku:"Rechenwege",
   bigpicture_hint:"Ergebnisübersicht — Eingaben im Reiter „Rechner“.",
   live_preview:"Live-Vorschau",
   live_hint:"Aktualisiert sich sofort beim Ändern der Eingaben links.",
@@ -1081,6 +1093,11 @@ en:{
   help_s4netcost:"Net investment/project cost for avoidance cost (€/t). For the metric only; does not change the avoided emissions.",
   help_s4template:"Selects the calculation formula and required input fields. 'Generic' allows any activity × factor for baseline and project.",
   help_s4baselinejust:"Mandatory for auditability: why is this baseline the right comparison basis? Without justification the calculation is not auditable.",
+  help_s4baselinetype:"What are you comparing against? The baseline is the world WITHOUT your project. „current state“ = what runs today, „market average“ = what is common, „regulatory minimum“ = what would be required at least. The more demanding the baseline, the smaller the claimed saving — and the more defensible the statement.",
+  help_s4source:"Where does the figure come from? This records which standard or data source you rely on. In an audit it is the first question — without a source the number stays a claim.",
+  help_s4uncertainty:"How reliable is the figure? „low“ = measured or well evidenced, „medium“ = plausibly derived, „high“ = rough estimate. It does not change the result but shows how much weight it carries, and it feeds the data quality index.",
+  help_s4systemboundary:"What is included? Record what the saving refers to (e.g. site, product, customer, supply chain). Without a boundary nobody can check for double counting.",
+  help_s4projectjust:"Technical assumptions of the project scenario: runtime, utilisation, efficiencies, boundary conditions. This is what makes your project figures reproducible later.",
   help_s4quality:"Assesses <b>only the Scope 4 project selected above</b> — not the greenhouse gas inventory. Its data quality is shown separately in the calculator under 'Data quality (ISO 14064-1)'. Self-assessment 0–100 across seven criteria: from 80 highly robust, below 40 not reportable. Points per criterion are shown on the right.",
   co2_override:"overridden", co2_unit_trees:"trees", co2_stems:"stems/ha",
   unc_low:"low", unc_medium:"medium", unc_high:"high",
@@ -1149,7 +1166,7 @@ en:{
   ported_disclaimer_note:"Ported from reference/IDT_NetZero_Management_Tool_v5.html, functions readInputs(), calcForYear(), measureSums(), coverage().",
   m_disclaimer:"The formulas describe the net-zero reduction path: BAU growth (ramped up linearly between base and target year), target reduction per scope, measure coverage, neutralization and net emissions. The tool is a management and steering instrument; assessment is per scope, including data-quality tagging (A–D).",
 
-  h_audit:"Audit & Docs", p_audit:"Traceable documentation of assumptions, data sources and changes to the project state.",
+  h_audit:"Data verification", p_audit:"Traceable documentation of assumptions, data sources and changes to the project state — the evidence behind every figure.",
   f_audit_note:"New entry", f_audit_author:"Author", f_add_audit:"+ Add entry", th_datum:"Date", th_autor:"Author", th_notiz:"Note",
   noAudit:"No audit entries yet.",
 
@@ -1258,7 +1275,7 @@ badge_saved_hint:"All inputs are stored in this browser and will still be there 
   tab_methodik:"Methodology",
   tab_audit:"Audit trail",
   tab_exportimport:"Export / Import",
-  m_sub_doku:"Calculations & documentation",
+  m_sub_doku:"Calculations",
   bigpicture_hint:"Results overview — inputs are in the \"Calculator\" tab.",
   live_preview:"Live preview",
   live_hint:"Updates immediately as you change the inputs on the left.",
@@ -1874,20 +1891,102 @@ function tabManagementExportInnerV2(){return stripH2V2(tabManagementExport());}
 
 /* ===== V2: Methodik mit Unterreitern (Warum & Wie / Rechenwege & Doku / Glossar) - Muster aus
    dem Umwelt-Dashboard, wo Methodik ebenfalls Unterreiter statt eigener Sidebar-Punkte hat. ===== */
+/* V3 (Anwenderwunsch 27.07.): Bedienanleitung. Wichtigster Punkt zuerst — der Stand liegt nur
+   im Browser und muss am Ende gesichert werden, sonst ist alles weg (gilt auch fuer die
+   Projektliste in Scope 4 und die Audit-Eintraege). */
+function userGuideInnerV3(){
+  const en=state.lang==="en";
+  const schritt=(n,titel,txt)=>`<div style="margin:9px 0"><b>${n}. ${titel}</b><br><span style="opacity:.85">${txt}</span></div>`;
+  return `<div class="card" style="border-left:3px solid var(--accent)">
+    <h3>${en?"Save your work — otherwise it is gone":"Zuerst das Wichtigste: Speichern nicht vergessen"}</h3>
+    <p>${en
+      ? "This tool runs entirely in your browser. Nothing is stored on a server. Everything you enter — project data, measures, Scope 4 project list, audit entries and answers — lives in this browser session only."
+      : "Dieses Werkzeug läuft vollständig in deinem Browser. Nichts wird auf einem Server gespeichert. Alles, was du eingibst — Projektdaten, Maßnahmen, die Projektliste in Scope 4, Audit-Einträge und Antworten — liegt nur in dieser Browser-Sitzung."}</p>
+    <p><b>${en?"Before you close the tab:":"Bevor du den Reiter schließt:"}</b> ${en
+      ? "go to <b>Export/Import → Save and load project state</b> and download the JSON file. Reopening it later restores everything exactly as it was. Without that file the work is lost — clearing the browser data or a different computer is enough."
+      : "gehe auf <b>Export/Import → Projektstand sichern und laden</b> und lade die JSON-Datei herunter. Beim späteren Öffnen ist alles wieder genau so da. Ohne diese Datei ist die Arbeit weg — schon das Leeren der Browserdaten oder ein anderer Rechner genügt."}</p>
+    <p class="hint">${en
+      ? "The browser also keeps an automatic copy, but treat it as a convenience, not as a backup."
+      : "Der Browser legt zusätzlich eine automatische Kopie an — verlasse dich darauf aber nicht, das ist Bequemlichkeit, keine Sicherung."}</p>
+  </div>
+  <div class="card"><h3>${en?"Recommended order":"Empfohlene Reihenfolge"}</h3>
+    ${schritt(1,en?"Calculator: enter the basics":"Rechner: Grunddaten eintragen",
+      en?"Project name, base year, target year, and per scope the baseline emissions and reduction target. Without base and target year nothing can be computed — the tool says so instead of showing a number."
+        :"Projektname, Basisjahr, Zieljahr sowie je Scope die Basisemission und das Reduktionsziel. Ohne Basis- und Zieljahr lässt sich nichts rechnen — das Werkzeug sagt das ausdrücklich, statt eine Zahl zu zeigen.")}
+    ${schritt(2,en?"Add measures":"Maßnahmen erfassen",
+      en?"Each measure needs a name, a scope, an effect in t CO₂e and the year it takes full effect. Coverage tells you how much of the target the measures already carry."
+        :"Jede Maßnahme braucht Namen, Scope, Wirkung in t CO₂e und das Jahr der vollen Wirkung. Der Deckungsgrad zeigt dir, wie viel des Ziels die Maßnahmen schon tragen.")}
+    ${schritt(3,en?"Simulator: try scenarios":"Simulator: Szenarien durchspielen",
+      en?"Move the sliders to see instantly how targets and measures change the path. Nothing is lost — the sliders write straight into the project."
+        :"Mit den Reglern siehst du sofort, wie sich Ziele und Maßnahmen auf den Pfad auswirken. Es geht nichts verloren — die Regler schreiben direkt ins Projekt.")}
+    ${schritt(4,en?"Document assumptions":"Annahmen dokumentieren",
+      en?"Under <b>Audit trail</b> record where your figures come from and what you assumed. This is what makes the result defensible in an audit."
+        :"Unter <b>Audit-Trail</b> hältst du fest, woher deine Zahlen stammen und was du angenommen hast. Genau das macht das Ergebnis in einer Prüfung belastbar.")}
+    ${schritt(5,en?"Export and save":"Exportieren und sichern",
+      en?"Under <b>Export/Import</b> you find data exports, charts, the management report — and the project state to save."
+        :"Unter <b>Export/Import</b> findest du Datenexporte, Grafiken, den Management-Bericht — und den Projektstand zum Sichern.")}
+  </div>
+  <div class="card"><h3>${en?"What the tool does not do":"Was das Werkzeug nicht tut"}</h3>
+    <p>${en
+      ? "It does not check whether your figures are correct, and it does not decide whether a target is ambitious enough. It computes the path that follows from your input and shows where measures fall short of the target. Emission factors for the equivalents come from published sources and are listed with each result."
+      : "Es prüft nicht, ob deine Zahlen stimmen, und es entscheidet nicht, ob ein Ziel ehrgeizig genug ist. Es rechnet den Pfad, der sich aus deinen Eingaben ergibt, und zeigt, wo Maßnahmen hinter dem Ziel zurückbleiben. Die Emissionsfaktoren der Äquivalente stammen aus veröffentlichten Quellen und stehen bei jedem Ergebnis dabei."}</p>
+  </div>`;
+}
+/* V3: Rechenwege — vorher zeigte dieser Unterreiter den Audit-Teil (Fehlzuordnung). */
+function rechenwegeInnerV3(){
+  const en=state.lang==="en";
+  const f=(t1,formel,txt)=>`<div style="margin:10px 0"><b>${t1}</b><div style="font-family:ui-monospace,Consolas,monospace;font-size:12.5px;margin:3px 0;opacity:.9">${formel}</div><span style="opacity:.85">${txt}</span></div>`;
+  return `<div class="card"><h3>${en?"How the figures are calculated":"Wie die Zahlen zustande kommen"}</h3>
+    ${f(en?"BAU path (business as usual)":"BAU-Pfad (ohne Gegenmaßnahmen)",
+      en?"BAU(year) = baseline × (1 + growth × progress)":"BAU(Jahr) = Basisemission × (1 + Wachstum × Fortschritt)",
+      en?"Growth is the total across the whole horizon, not per year; it ramps up linearly from the base year and is fully effective in the target year."
+        :"Das Wachstum gilt für den gesamten Zeitraum, nicht je Jahr; es steigt vom Basisjahr an linear und wirkt im Zieljahr vollständig.")}
+    ${f(en?"Target reduction":"Zielreduktion",
+      en?"target = BAU(target year) × reduction target %":"Zielreduktion = BAU(Zieljahr) × Reduktionsziel %",
+      en?"The target is measured against the BAU path, not against the base year — that is the stricter and the usual reading."
+        :"Das Ziel bemisst sich am BAU-Pfad, nicht am Basisjahr — das ist die strengere und die übliche Lesart.")}
+    ${f(en?"Coverage":"Deckungsgrad",
+      en?"coverage = sum of measures ÷ target reduction":"Deckungsgrad = Summe der Maßnahmen ÷ Zielreduktion",
+      en?"Above 100 % the measures more than cover the target. Below, the gap is the shortfall that still needs measures."
+        :"Über 100 % tragen die Maßnahmen mehr als das Ziel verlangt. Darunter ist die Lücke der Fehlbetrag, für den noch Maßnahmen fehlen.")}
+    ${f(en?"Net emission":"Netto-Emission",
+      en?"net = BAU(target year) − measures − neutralisation":"Netto = BAU(Zieljahr) − Maßnahmen − Neutralisierung",
+      en?"What remains after everything. Neutralisation is deliberately shown separately — reduction first, compensation last."
+        :"Was am Ende übrig bleibt. Die Neutralisierung steht bewusst getrennt — erst reduzieren, dann kompensieren.")}
+    <p class="hint">${en
+      ? "Rounding happens only for display; the calculation runs on unrounded values. Sources and assumptions belong under Audit trail, the factors for the equivalents are listed there too."
+      : "Gerundet wird nur für die Anzeige, gerechnet mit ungerundeten Werten. Quellen und Annahmen gehören unter Audit-Trail, dort stehen auch die Faktoren der Äquivalente."}</p>
+  </div>`;
+}
 function tabMethodikV2(){
-  const views=[["warum",t("tab_warum")],["doku",t("m_sub_doku")],["glossar",t("tab_glossar")]];
+  /* V3 (Anwenderwunsch 27.07.): neuer Unterreiter "Bedienung" (User Guide). Der Audit-Teil ist
+     aus "Rechenwege" ausgezogen und lebt jetzt vollstaendig im Reiter Audit-Trail — dort
+     gehoeren Nachweise hin, hier stehen Rechenwege. */
+  const views=[["warum",t("tab_warum")],["guide",state.lang==="en"?"How to use":"Bedienung"],["doku",t("m_sub_doku")],["glossar",t("tab_glossar")]];
   if(!state.methodikView||!views.some(v=>v[0]===state.methodikView))state.methodikView="warum";
   const bar=`<div class="method-subtabs-v2">${views.map(([k,lab])=>`<button class="${state.methodikView===k?"active":""}" data-mview="${k}">${lab}</button>`).join("")}</div>`;
   let inner="";
   if(state.methodikView==="warum")inner=`<div class="card"><p>${t("p_warum1")}</p><p>${t("p_warum2")}</p><p>${t("p_warum3")}</p><p>${t("p_warum4")}</p></div>`;
   else if(state.methodikView==="glossar")inner=tabGlossarInnerV2();
-  else inner=tabAuditInnerV2();
+  else if(state.methodikView==="guide")inner=userGuideInnerV3();
+  else inner=rechenwegeInnerV3();
   return `<h2>${t("tab_methodik")}</h2>${bar}${inner}`;
 }
 /* Audit-Trail: fasst die frueheren Reiter "Audit & Quellen" und den Doku-Teil zusammen
    (Anwendervorgabe: gehoert beides unter Audit-Trail). */
 function tabAuditV2(){
-  return `<h2>${t("tab_audit")}</h2>${tabAuditQuellenInnerV2()}`;
+  /* V3 (Anwendervorgabe 27.07.): Der Audit-Trail buendelt ALLES, was die Nachvollziehbarkeit
+     sichert — Prueffragen, Annahmen- und Aenderungsprotokoll sowie die Quellen-/Faktorregister.
+     Vorher lagen Fragenkatalog und Eintragsformular im Methodik-Unterreiter "Rechenwege & Doku",
+     wo sie fachlich nicht hingehoeren (dort stehen Formeln, keine Nachweise). */
+  const en=state.lang==="en";
+  const intro=`<div class="card"><p>${en
+    ? "Traceable documentation of assumptions, data sources and changes to the project state. Everything recorded here travels with the project file: it answers later <b>why</b> a figure looks the way it does — the calculation itself is described under Methodology."
+    : "Nachvollziehbare Dokumentation von Annahmen, Datenquellen und Änderungen am Projektstand. Alles, was hier festgehalten wird, reist mit der Projektdatei mit und beantwortet später die Frage, <b>warum</b> eine Zahl so aussieht — der Rechenweg selbst steht unter Methodik."}</p>
+    <p class="hint">${en
+    ? "Note: entries live in the browser only. Save the project state under Export/Import before closing, otherwise this documentation is lost."
+    : "Hinweis: Einträge liegen nur im Browser. Sichere den Projektstand vor dem Schließen unter Export/Import, sonst geht diese Dokumentation verloren."}</p></div>`;
+  return `<h2>${t("tab_audit")}</h2>${intro}${tabAuditInnerV2()}${tabAuditQuellenInnerV2()}`;
 }
 /* Export / Import: alle frueheren Kopfzeilen-Aktionen gebuendelt an einer Stelle, jeweils mit
    Erklaertext - genau wie der Export-Tab des Umwelt-Dashboards. */
@@ -1931,6 +2030,22 @@ function tabExportImportV2(){
         <button class="btn" id="s4ExpCsv">${t("s4_exp_csv")}</button>
         <button class="btn" id="s4ExpMd">${t("s4_exp_md")}</button>
         <button class="btn" id="s4ExpMgmt">${t("s4_exp_mgmt")}</button>
+      </div>
+    </div>
+    <!-- V3 (Anwenderwunsch 27.07.): auch die Register-/Nachweis-Exporte aus dem Audit-Trail
+         gehoeren hierher — ein Ort fuer alle Ausgaben. -->
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line,#2a3b53)">
+      <div style="font-weight:600;margin-bottom:4px">${state.lang==="en"?"Audit trail — registers and evidence":"Audit-Trail — Register und Nachweise"}</div>
+      <div class="hint" style="margin-bottom:8px">${state.lang==="en"
+        ? "Factor registers with source, document, year and data quality, plus the audit log — the evidence behind the figures."
+        : "Faktorregister mit Quelle, Dokument, Jahr und Datenqualität sowie das Audit-Protokoll — der Nachweis hinter den Zahlen."}</div>
+      <div class="exp-actions-v2">
+        <button class="btn" id="regExpCsv">${t("co2_reg_csv")}</button>
+        <button class="btn" id="regExpJson">${t("co2_reg_json")}</button>
+        <button class="btn" id="regExpMd">${t("co2_audit_md")}</button>
+        <button class="btn" id="s4RegCsv">${t("s4_reg_csv")}</button>
+        <button class="btn" id="s4RegJson">${t("s4_reg_json")}</button>
+        <button class="btn" id="s4AuditMd">${t("s4_audit_md")}</button>
       </div>
     </div>
   </div>
@@ -2205,13 +2320,8 @@ function tabAuditQuellen(){
     </table></div>
     <div class="row-actions"><button class="btn small-btn" id="co2ResetOv">${t("co2_reset_ov")}</button></div>
   </div>
-  <div class="card"><h3>${t("co2_h_export")}</h3>
-    <div class="row-actions" style="flex-wrap:wrap">
-      <button class="btn" id="regExpCsv">${t("co2_reg_csv")}</button>
-      <button class="btn" id="regExpJson">${t("co2_reg_json")}</button>
-      <button class="btn" id="regExpMd">${t("co2_audit_md")}</button>
-    </div>
-  </div>
+  <!-- V3 (Anwenderwunsch 27.07.): Registry-Exporte in den Reiter "Export/Import" verschoben —
+       alle Ausgaben an einem Ort. -->
   <h2 style="margin-top:24px">${t("s4a_heading")}</h2>
   <div class="notice" style="border-left-color:var(--danger);background:rgba(227,91,82,.10)">${t("s4_warn_body")}</div>
   ${s4AuditSections()}`;
@@ -2542,16 +2652,16 @@ function tabScope4(){
 
   <div class="two-col">
     <div class="card"><h3>${t("s4_h_baseline")}</h3>
-      <div class="field"><label>${t("s4_f_baselinetype")}</label><select data-s4f="baselineType">${["current_state","market_average","regulatory_minimum","future_grid","counterfactual","custom"].map(x=>`<option value="${x}" ${a.baselineType===x?"selected":""}>${t("s4bt_"+x)}</option>`).join("")}</select></div>
-      <div class="field"><label>${t("s4_f_source")}</label>${src("baselineSourceId")}</div>
-      <div class="field"><label>${t("s4_f_uncertainty")}</label>${uncSel("baselineUnc")}</div>
+      <div class="field"><label>${t("s4_f_baselinetype")}${info("s4baselinetype")}</label><select data-s4f="baselineType">${["current_state","market_average","regulatory_minimum","future_grid","counterfactual","custom"].map(x=>`<option value="${x}" ${a.baselineType===x?"selected":""}>${t("s4bt_"+x)}</option>`).join("")}</select></div>
+      <div class="field"><label>${t("s4_f_source")}${info("s4source")}</label>${src("baselineSourceId")}</div>
+      <div class="field"><label>${t("s4_f_uncertainty")}${info("s4uncertainty")}</label>${uncSel("baselineUnc")}</div>
       <div class="field"><label>${t("s4_f_baselinejust")}${info("s4baselinejust")}</label><textarea data-s4f="baselineJust">${esc(a.baselineJust)}</textarea></div>
     </div>
     <div class="card"><h3>${t("s4_h_project_sc")}</h3>
-      <div class="field"><label>${t("s4_f_source")}</label>${src("projectSourceId")}</div>
-      <div class="field"><label>${t("s4_f_uncertainty")}</label>${uncSel("projectUnc")}</div>
-      <div class="field"><label>${t("s4_f_systemboundary")}</label><input type="text" data-s4f="systemBoundary" value="${esc(a.systemBoundary)}" placeholder="${t("s4_sb_ph")}"></div>
-      <div class="field"><label>${t("s4_f_projectjust")}</label><textarea data-s4f="projectJust">${esc(a.projectJust)}</textarea></div>
+      <div class="field"><label>${t("s4_f_source")}${info("s4source")}</label>${src("projectSourceId")}</div>
+      <div class="field"><label>${t("s4_f_uncertainty")}${info("s4uncertainty")}</label>${uncSel("projectUnc")}</div>
+      <div class="field"><label>${t("s4_f_systemboundary")}${info("s4systemboundary")}</label><input type="text" data-s4f="systemBoundary" value="${esc(a.systemBoundary)}" placeholder="${t("s4_sb_ph")}"></div>
+      <div class="field"><label>${t("s4_f_projectjust")}${info("s4projectjust")}</label><textarea data-s4f="projectJust">${esc(a.projectJust)}</textarea></div>
     </div>
   </div>
 
@@ -2614,11 +2724,7 @@ function s4AuditSections(){
   <div class="card"><h3>${t("s4a_trail")}</h3>
     <div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>${t("s4_f_name")}</th><th>${t("s4_f_type")}</th><th>${t("s4a_date")}</th><th>${t("s4_f_baselinetype")}</th><th>${t("s4a_baselinejust")}</th><th>${t("s4a_bsource")}</th><th>${t("s4a_psource")}</th><th>t/a</th><th>t ${t("s4a_life")}</th><th>${t("s4_f_systemboundary")}</th><th>${t("s4_f_uncertainty")}</th><th>${t("s4c_confidence")}</th><th>${t("s4_th_status")}</th><th>Claim</th></tr></thead>
     <tbody>${rows || `<tr><td colspan="15" style="text-align:center;color:var(--text-muted)">${t("s4_nolist")}</td></tr>`}</tbody></table></div>
-    <div class="row-actions" style="flex-wrap:wrap;margin-top:10px">
-      <button class="btn" id="s4RegCsv">${t("s4_reg_csv")}</button>
-      <button class="btn" id="s4RegJson">${t("s4_reg_json")}</button>
-      <button class="btn" id="s4AuditMd">${t("s4_audit_md")}</button>
-    </div>
+    <!-- V3: Registry-Exporte stehen jetzt unter "Export/Import". -->
   </div>`;
 }
 
@@ -2947,9 +3053,23 @@ function drawTrajectoryChart(){
 
 /* ============================= UNIT CONVERSION (Einheitencheck) ============================= */
 const UNIT_FACTORS_TO_KG = { kg:1, t:1000, kt:1000000, Mt:1000000000 };
+/* V3 (Anwenderwunsch 27.07.): zusaetzlich Energieeinheiten. Bezugsgroesse ist kWh.
+   Faktoren: 1 MWh = 1.000 kWh · 1 GJ = 277,7778 kWh (3,6 MJ je kWh) · 1 TJ = 277.777,78 kWh ·
+   1 MMBtu = 293,07107 kWh (1 Btu = 1.055,05585262 J, US-Standard). */
+const UNIT_FACTORS_TO_KWH = { kWh:1, MWh:1000, GWh:1000000, GJ:1000/3.6, TJ:1000000/3.6, MMBtu:293.07107017222 };
+/* Dimension einer Einheit bestimmen — verhindert unsinnige Umrechnungen wie t -> MWh. */
+function unitDimension(u){
+  if(u in UNIT_FACTORS_TO_KG) return "masse";
+  if(u in UNIT_FACTORS_TO_KWH) return "energie";
+  return null;
+}
 function convertUnit(value, from, to){
-  if(!(from in UNIT_FACTORS_TO_KG) || !(to in UNIT_FACTORS_TO_KG)) return null;
-  return value*UNIT_FACTORS_TO_KG[from]/UNIT_FACTORS_TO_KG[to];
+  const dFrom=unitDimension(from), dTo=unitDimension(to);
+  /* Dimensionsmischung wird bewusst NICHT gerechnet: Eine Masse laesst sich ohne Heizwert
+     nicht in Energie umrechnen — ein stiller Zahlenwert waere hier fachlich falsch. */
+  if(!dFrom || !dTo || dFrom!==dTo) return null;
+  const tab = dFrom==="masse" ? UNIT_FACTORS_TO_KG : UNIT_FACTORS_TO_KWH;
+  return value*tab[from]/tab[to];
 }
 
 /* ============================= VALIDATION ============================= */
@@ -3294,28 +3414,38 @@ function renderCoverageCards(rows){
 
 function updateRechnerOutputs(){
   const result = buildDashboardResult();
-  const kpiBau = document.getElementById("kpiBauVal");
-  /* Wechsel gueltig <-> ungueltig tauscht ganze Bloecke: dann komplett neu rendern.
-     Das Eingabefeld behaelt den Fokus, weil renderMain() nur den Ergebnisteil ersetzt,
-     wenn sich der Gueltigkeitszustand geaendert hat. */
-  const zeigtErgebnis = !!kpiBau;
-  if(zeigtErgebnis !== result.valid){ renderMain(); wireActiveTab(); renderWarnings(); updateStickyKpis(); return; }
+  /* V3-Fix (Review 27.07.2026, Anwenderfund "beim Tippen springt es nach oben"):
+     Der Wechsel gueltig <-> ungueltig wurde daran abgelesen, ob #kpiBauVal im DOM steht.
+     Beim V2-Umbau sind die Ergebnis-Kacheln aber in andere Reiter gewandert — im Rechner
+     existiert das Element nicht mehr (8 von 9 Ergebnis-IDs fehlen dort). Damit war
+     zeigtErgebnis IMMER false, result.valid dagegen true, und die Bedingung schlug bei
+     JEDEM Tastendruck an: renderMain() baute den ganzen Reiter neu, das Eingabefeld wurde
+     ersetzt, Fokus und Scrollposition gingen verloren.
+     Jetzt wird der letzte Gueltigkeitszustand gemerkt, statt ihn aus dem DOM zu raten —
+     und jede Aktualisierung ist einzeln gegen fehlende Elemente abgesichert (vorher brach
+     die Funktion bei fehlendem kpiBau ab, wodurch u. a. der Pfad-Chart nie nachgezogen wurde). */
+  if(updateRechnerOutputs._lastValid!==undefined && updateRechnerOutputs._lastValid!==result.valid){
+    updateRechnerOutputs._lastValid = result.valid;
+    renderMain(); wireActiveTab(); renderWarnings(); updateStickyKpis(); return;
+  }
+  updateRechnerOutputs._lastValid = result.valid;
   if(!result.valid) return;
-  if(!kpiBau) return; // not on rechner tab (e.g. lang/tab switch mid-flight)
-  kpiBau.textContent = fmtT(result.totalBau)+" "+t("unit_t");
-  document.getElementById("kpiZielVal").textContent = fmtT(result.totalZiel)+" "+t("unit_t");
-  document.getElementById("kpiMassnahmenVal").textContent = fmtT(result.totalMassnahmen)+" "+t("unit_t");
-  document.getElementById("kpiDeckungsgradVal").textContent = covText(result.overallCov);
-  document.getElementById("kpiNettoVal").textContent = fmtT(result.nettoGesamt)+" "+t("unit_t");
+  const setTxt=(id,txt)=>{const el=document.getElementById(id); if(el) el.textContent=txt;};
+  const setHtml=(id,html)=>{const el=document.getElementById(id); if(el) el.innerHTML=html;};
+  setTxt("kpiBauVal", fmtT(result.totalBau)+" "+t("unit_t"));
+  setTxt("kpiZielVal", fmtT(result.totalZiel)+" "+t("unit_t"));
+  setTxt("kpiMassnahmenVal", fmtT(result.totalMassnahmen)+" "+t("unit_t"));
+  setTxt("kpiDeckungsgradVal", covText(result.overallCov));
+  setTxt("kpiNettoVal", fmtT(result.nettoGesamt)+" "+t("unit_t"));
   // Ampel-Tönung der bewertbaren Kacheln live nachziehen
   const dgTile = document.getElementById("kpiDeckungsgradTile");
   if(dgTile) dgTile.className = "kpi "+covTone(result.overallCov);
   const nettoTile = document.getElementById("kpiNettoTile");
   if(nettoTile) nettoTile.className = "kpi "+nettoTone(result);
-  document.getElementById("scopeTableBody").innerHTML = renderScopeTableRows(result.rows);
-  document.getElementById("coverageCardsContainer").innerHTML = renderCoverageCards(result.rows);
-  document.getElementById("waterfallChartHost").innerHTML = drawWaterfallChart(result.final);
-  document.getElementById("trajectoryChartHost").innerHTML = drawTrajectoryChart();
+  setHtml("scopeTableBody", renderScopeTableRows(result.rows));
+  setHtml("coverageCardsContainer", renderCoverageCards(result.rows));
+  setHtml("waterfallChartHost", drawWaterfallChart(result.final));
+  setHtml("trajectoryChartHost", drawTrajectoryChart());
   renderImpacts(result);
 }
 
@@ -3671,15 +3801,26 @@ function tabAudit(){
   </div>`;
 }
 
+/* V3: Auswahllisten des Einheitenchecks — nach Dimension gruppiert, damit sofort sichtbar ist,
+   welche Einheiten ueberhaupt zusammenpassen (Masse untereinander, Energie untereinander). */
+function ucOptionsV3(sel){
+  const en=state.lang==="en";
+  const grp=(label,units)=>`<optgroup label="${label}">${units.map(u=>`<option${u===sel?" selected":""}>${u}</option>`).join("")}</optgroup>`;
+  return grp(en?"Mass (CO₂e)":"Masse (CO₂e)",["kg","t","kt","Mt"])
+       + grp(en?"Energy":"Energie",["kWh","MWh","GWh","GJ","TJ","MMBtu"]);
+}
 function tabEinheitencheck(){
   return `<h2>${t("h_einheitencheck")}</h2>
   <div class="card"><p>${t("p_einheitencheck")}</p>
   <div class="grid">
     <div class="field"><label>${t("f_eingabewert")}</label><input type="number" id="uc_value" value="1000"></div>
-    <div class="field"><label>${t("f_von")}</label><select id="uc_from"><option>kg</option><option>t</option><option>kt</option><option>Mt</option></select></div>
-    <div class="field"><label>${t("f_nach")}</label><select id="uc_to"><option selected>t</option><option>kg</option><option>kt</option><option>Mt</option></select></div>
+    <div class="field"><label>${t("f_von")}</label><select id="uc_from">${ucOptionsV3("t")}</select></div>
+    <div class="field"><label>${t("f_nach")}</label><select id="uc_to">${ucOptionsV3("kg")}</select></div>
   </div>
   <div class="kpi" style="margin-top:10px"><div class="lbl">${t("th_ergebnis")}</div><div class="val" id="uc_result">–</div></div>
+  <p class="hint" style="margin-top:8px">${state.lang==="en"
+    ? "Mass and energy are converted within their own dimension only. A mass cannot be turned into energy without a calorific value — such a pairing therefore returns no number instead of a plausible-looking but wrong one. Reference values: 1 t = 1,000 kg · 1 MWh = 1,000 kWh · 1 GJ = 277.78 kWh · 1 TJ = 277,778 kWh · 1 MMBtu = 293.07 kWh."
+    : "Masse und Energie werden nur innerhalb ihrer eigenen Dimension umgerechnet. Eine Masse lässt sich ohne Heizwert nicht in Energie überführen — eine solche Kombination liefert deshalb bewusst keinen Wert statt einer plausibel aussehenden, aber falschen Zahl. Bezugswerte: 1 t = 1.000 kg · 1 MWh = 1.000 kWh · 1 GJ = 277,78 kWh · 1 TJ = 277.778 kWh · 1 MMBtu = 293,07 kWh."}</p>
   </div>
   <div class="card"><h3>${t("co2quick_h")}${info("co2quick")}</h3>
     <p class="hint">${t("co2quick_p")}</p>
@@ -3919,6 +4060,12 @@ function wireActiveTab(){
     b("s4ExpCsv", typeof s4ExportCsv==="function"?s4ExportCsv:null);
     b("s4ExpMd",  typeof s4AuditMd==="function"?s4AuditMd:null);
     b("s4ExpMgmt",typeof s4ManagementMd==="function"?s4ManagementMd:null);
+    b("regExpCsv", typeof co2RegistryCsv==="function"?co2RegistryCsv:null);
+    b("regExpJson",typeof co2RegistryJson==="function"?co2RegistryJson:null);
+    b("regExpMd",  typeof co2AuditMd==="function"?co2AuditMd:null);
+    b("s4RegCsv",  typeof s4RegistryCsv==="function"?s4RegistryCsv:null);
+    b("s4RegJson", typeof s4RegistryJson==="function"?s4RegistryJson:null);
+    b("s4AuditMd", typeof s4AuditMd==="function"?s4AuditMd:null);
     /* kein return: die uebrigen Export-Handler (xCsv/xMd/xImg/Import …) folgen weiter unten */
   }
   if(tab==="rechner"){
