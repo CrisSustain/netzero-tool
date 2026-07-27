@@ -1,0 +1,20 @@
+# Arbeits- und Sicherungsdateien nicht veröffentlichen
+*_backup_*.html
+*.bak
+*.tmp
+
+# Lokale Arbeitsstände des Tools (können Projektdaten enthalten)
+netzero_state.json
+projekt_state.json
+*_state.json
+
+# Betriebssystem / Editor
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# Werkzeug-/Sitzungsordner
+.claude/
+node_modules/
