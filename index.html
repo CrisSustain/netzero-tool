@@ -2130,12 +2130,12 @@ function tabExportImportV2(){
     <div class="hint" style="margin-bottom:10px">${t("x_p_demo")}</div>
     <div class="exp-actions-v2">
       <button class="btn" id="xDemo">${t("demo")}</button>
-      <button class="btn" id="xTewCase">${state.lang==="en"?"Load TEW case":"TEW-Fall laden"}</button>
+      <button class="btn" id="xSampleCase">${state.lang==="en"?"Load sample case XY":"Beispielfall XY laden"}</button>
       <button class="btn" id="xReset">${t("reset")}</button>
     </div>
     <div class="hint" style="margin-top:8px">${state.lang==="en"
-      ? "<b>TEW case</b> fills in the documented figures from the TEW sustainability report 2024 and the NetZero plan: Scope 1/2 actuals for 2024, the conservative Scope 3 estimate, the roadmap measures and the target Net Zero 2040. The origin of every figure is written to the audit trail."
-      : "<b>TEW-Fall</b> trägt die belegten Werte aus dem TEW-Nachhaltigkeitsbericht 2024 und dem NetZero-Plan ein: Scope-1/2-Ist-Werte 2024, die konservative Scope-3-Schätzung, die Roadmap-Maßnahmen und das Ziel Net-Zero 2040. Die Herkunft jeder Zahl wird in den Audit-Trail geschrieben."}</div>
+      ? "<b>Sample case XY</b> fills in a complete, realistic set of figures from an anonymised industrial site: Scope 1/2 actuals for the base year, a conservative Scope 3 estimate, the roadmap measures and the target Net Zero 2040. Use it to see what a fully filled-in project looks like before entering your own data. The origin and the limitations of the figures are written to the audit trail."
+      : "<b>Beispielfall XY</b> trägt einen vollständigen, realistischen Datensatz eines anonymisierten Industriestandorts ein: Scope-1/2-Ist-Werte des Basisjahrs, eine konservative Scope-3-Schätzung, die Roadmap-Maßnahmen und das Ziel Net-Zero 2040. Damit sehen Sie, wie ein fertig ausgefülltes Projekt aussieht, bevor Sie eigene Daten eingeben. Herkunft und Grenzen der Zahlen stehen im Audit-Trail."}</div>
   </div>
   <div class="card"><h3><span class="exp-badge-v2">6</span>${t("x_h_import")}</h3>
     <div class="hint" style="margin-bottom:10px">${t("x_p_import")}</div>
@@ -3667,10 +3667,10 @@ function nzChartZeitV3(){
 }
 
 
-/* ============ V3: Referenzpfade + TEW-Fall (Anwenderwunsch 27.07.) ============
+/* ============ V3: Referenzpfade + Beispielfall XY (Anwenderwunsch 27.07.) ============
    Quellen der Zielwerte:
      SBTi 1,5 C  - lineare absolute Reduktion 4,2 %-Punkte der Basis pro Jahr
-                   (SBTi Corporate Net-Zero Standard; im TEW-Plan als Referenzpfad hinterlegt)
+                   (SBTi Corporate Net-Zero Standard)
      SBTi WB2 C  - 2,5 %-Punkte pro Jahr
      EU Fit for 55 - 55 % bis 2030 gegenueber 1990 (VO (EU) 2021/1119), 40 Jahre
                    -> 1,375 %-Punkte pro Jahr linear
@@ -3746,12 +3746,12 @@ function nzChartPfadeV3(){
   return g+nzLeseV3(txt)+quellenZeile;
 }
 
-/* TEW-Fall aus Nachhaltigkeitsbericht 2024 und NetZero-Plan vorbelegen.
+/* Beispielfall XY vorbelegen: anonymisierte Realdaten eines Industriestandorts.
    Werte ausschliesslich aus den Dokumenten - nichts geschaetzt, Luecken bleiben leer. */
-function nzLoadTewCaseV3(){
+function nzLoadSampleCaseV3(){
   var en=state.lang==="en";
-  if(!confirm(en?"Load the documented TEW case? This replaces the current entries.":"Dokumentierten TEW-Fall laden? Die aktuellen Eingaben werden ersetzt."))return;
-  state.project.name="TEW Service GmbH \u00b7 Standort Dessau (BioPharmaPark)";
+  if(!confirm(en?"Load sample case XY? This replaces the current entries.":"Beispielfall XY laden? Die aktuellen Eingaben werden ersetzt."))return;
+  state.project.name=en?"Sample case XY \u00b7 industrial site (anonymised real data)":"Beispielfall XY \u00b7 Industriestandort (anonymisierte Realdaten)";
   state.project.basisjahr=2024;      // Jahr der belegten Scope-Werte im Bericht
   state.project.nearjahr=2030;       // Zwischenziel -40 %
   state.project.zieljahr=2040;       // Net-Zero Scope 1+2
@@ -3766,35 +3766,37 @@ function nzLoadTewCaseV3(){
   state.scopes.scope3.reduktionsziel=0;     // kein dokumentiertes Scope-3-Ziel
   // Die Rechnung zieht Scope 3 aus den Kategorien 1-15 (s3Sum), nicht aus basisemission.
   // Der Bericht nennt nur eine Gesamtschaetzung ohne Kategorie-Aufteilung ("aktuell nicht
-  // erfasst durch TEW"), daher vollstaendig in Kategorie 1 geparkt und mit Qualitaet C
+  // erfasst"), daher vollstaendig in Kategorie 1 geparkt und mit Qualitaet C
   // (Schaetzung) markiert. Keine erfundene Verteilung auf Kategorien.
   state.s3cats.forEach(function(c){ c.value=0; c.quality="A"; });
   state.s3cats[0].value=5600; state.s3cats[0].quality="C";
   if(state.quality){ state.quality.scope1="A"; state.quality.scope2="A"; }
+  // Namen in der aktuell gewaehlten Sprache: Massnahmen sind Nutzerdaten und werden
+  // spaeter nicht mituebersetzt, deshalb muss die Sprache beim Laden entschieden werden.
   state.massnahmen=[
-    {id:1,name:"Digitale Z\u00e4hlerinfrastruktur (Efficio\u2122)",scope:"scope1",wirkung:100,jahr:2027},
-    {id:2,name:"Betriebsoptimierung / WRG / Netzverdichtung",scope:"scope1",wirkung:200,jahr:2027},
-    {id:3,name:"PV-Ausbau 12 MWp",scope:"scope2",wirkung:1760,jahr:2028},
-    {id:4,name:"Zertifizierter Gr\u00fcnstrom (100 %)",scope:"scope2",wirkung:1000,jahr:2027},
-    {id:5,name:"Windkraft \u2192 Power-to-Heat",scope:"scope1",wirkung:3416,jahr:2032},
-    {id:6,name:"PV \u2192 Power-to-Heat",scope:"scope1",wirkung:1993,jahr:2032},
-    {id:7,name:"Flottenelektrifizierung",scope:"scope1",wirkung:80,jahr:2035},
-    {id:8,name:"Notstrom \u2192 HVO / Batterie",scope:"scope1",wirkung:50,jahr:2035},
-    {id:9,name:"Spitzenlastkessel \u2192 E-Kessel",scope:"scope1",wirkung:1500,jahr:2038}
-  ];
+    {id:1,de:"Digitale Z\u00e4hlerinfrastruktur",           en:"Digital metering infrastructure",        scope:"scope1",wirkung:100, jahr:2027},
+    {id:2,de:"Betriebsoptimierung / WRG / Netzverdichtung",en:"Operational optimisation / heat recovery",scope:"scope1",wirkung:200, jahr:2027},
+    {id:3,de:"PV-Ausbau 12 MWp",                          en:"PV expansion 12 MWp",                    scope:"scope2",wirkung:1760,jahr:2028},
+    {id:4,de:"Zertifizierter Gr\u00fcnstrom (100 %)",        en:"Certified green electricity (100 %)",    scope:"scope2",wirkung:1000,jahr:2027},
+    {id:5,de:"Windkraft \u2192 Power-to-Heat",               en:"Wind power \u2192 power-to-heat",           scope:"scope1",wirkung:3416,jahr:2032},
+    {id:6,de:"PV \u2192 Power-to-Heat",                      en:"PV \u2192 power-to-heat",                   scope:"scope1",wirkung:1993,jahr:2032},
+    {id:7,de:"Flottenelektrifizierung",                   en:"Fleet electrification",                  scope:"scope1",wirkung:80,  jahr:2035},
+    {id:8,de:"Notstrom \u2192 HVO / Batterie",               en:"Back-up power \u2192 HVO / battery",        scope:"scope1",wirkung:50,  jahr:2035},
+    {id:9,de:"Spitzenlastkessel \u2192 E-Kessel",            en:"Peak-load boiler \u2192 electric boiler",   scope:"scope1",wirkung:1500,jahr:2038}
+  ].map(function(m){ return {id:m.id,name:en?m.en:m.de,scope:m.scope,wirkung:m.wirkung,jahr:m.jahr}; });
   state.nextMassnahmeId=10;
-  state.neutralisierung.prozent=0;   // Bericht: keine Kompensation zur Zielerreichung
+  state.neutralisierung.prozent=0;   // Quelle: keine Kompensation zur Zielerreichung
   state.neutralisierung.beschreibung=en
-    ? "Report: no compensation used to reach the target (optional on top)."
-    : "Bericht: keine Kompensation zur Zielerreichung (optional \u201eon top\u201c).";
+    ? "Source: reduction only, no compensation used to reach the target (optional on top)."
+    : "Quelle: nur Reduktion, keine Kompensation zur Zielerreichung (optional \u201eon top\u201c).";
   state.audit=state.audit||[];
   state.audit.push({id:state.nextAuditId++,date:new Date().toISOString().slice(0,10),
-    author:"TEW-Fall",
+    author:en?"Sample case XY":"Beispielfall XY",
     note:en
-      ? "Loaded from TEW sustainability report 2024 and NetZero plan 2025-08-29. Scope 1/2 are 2024 actuals (7,580 / 2,411 t); Scope 3 is the report's conservative estimate (5,600 t). TEW uses 2015 as methodological base year - the full 2015 figures are not in the report, so 2024 is used here as the base. Measure effects from the roadmap table and the plan file. Limitations: (a) Scope 3 exists only as an aggregate estimate - with no category breakdown in the report it is booked entirely to category 1, quality C; (b) the Net Zero 2040 target and the -40 % by 2030 milestone apply to Scope 1+2 only per the report - Scope 3 therefore carries a 0 % reduction target and deliberately shows up as an open remainder in the gap chart."
-      : "Geladen aus TEW-Nachhaltigkeitsbericht 2024 und NetZero-Plan 2025-08-29. Scope 1/2 sind Ist-Werte 2024 (7.580 / 2.411 t); Scope 3 ist die konservative Sch\u00e4tzung des Berichts (5.600 t). TEW nutzt methodisch 2015 als Basisjahr \u2013 vollst\u00e4ndige 2015-Werte stehen nicht im Bericht, daher hier 2024 als Basis. Ma\u00dfnahmenwirkungen aus der Roadmap-Tabelle und der Plandatei. Einschr\u00e4nkungen: (a) Scope 3 liegt nur als Gesamtsch\u00e4tzung vor \u2013 mangels Kategorie-Aufteilung im Bericht vollst\u00e4ndig in Kategorie 1 gebucht, Qualit\u00e4t C; (b) das Ziel Net-Zero 2040 und das Zwischenziel \u201340 % bis 2030 gelten laut Bericht nur f\u00fcr Scope 1+2 \u2013 Scope 3 steht daher mit Reduktionsziel 0 % in der Bilanz und erscheint in der L\u00fccken-Grafik bewusst als offener Rest."});
+      ? "Sample case XY: anonymised real data of an industrial energy-services site, taken from its sustainability report and net-zero plan. Scope 1/2 are measured actuals for the base year (7,580 / 2,411 t); Scope 3 is the conservative estimate from the same report (5,600 t). The site uses an earlier methodological base year - the full figures for it are not documented, so the reporting year is used as the base here. Measure effects from the roadmap. Limitations: (a) Scope 3 exists only as an aggregate estimate - with no category breakdown available it is booked entirely to category 1, quality C; (b) the Net Zero 2040 target and the -40 % by 2030 milestone apply to Scope 1+2 only - Scope 3 therefore carries a 0 % reduction target and deliberately shows up as an open remainder in the gap chart."
+      : "Beispielfall XY: anonymisierte Realdaten eines industriellen Energiedienstleistungsstandorts aus dessen Nachhaltigkeitsbericht und NetZero-Plan. Scope 1/2 sind gemessene Ist-Werte des Basisjahrs (7.580 / 2.411 t); Scope 3 ist die konservative Sch\u00e4tzung desselben Berichts (5.600 t). Der Standort nutzt methodisch ein fr\u00fcheres Basisjahr \u2013 dessen vollst\u00e4ndige Werte sind nicht dokumentiert, daher hier das Berichtsjahr als Basis. Ma\u00dfnahmenwirkungen aus der Roadmap. Einschr\u00e4nkungen: (a) Scope 3 liegt nur als Gesamtsch\u00e4tzung vor \u2013 mangels Kategorie-Aufteilung vollst\u00e4ndig in Kategorie 1 gebucht, Qualit\u00e4t C; (b) das Ziel Net-Zero 2040 und das Zwischenziel \u201340 % bis 2030 gelten nur f\u00fcr Scope 1+2 \u2013 Scope 3 steht daher mit Reduktionsziel 0 % in der Bilanz und erscheint in der L\u00fccken-Grafik bewusst als offener Rest."});
   renderAll(); scheduleAutosave();
-  alert(en?"TEW case loaded. See Audit trail for the data origin.":"TEW-Fall geladen. Die Datenherkunft steht im Audit-Trail.");
+  alert(en?"Sample case XY loaded. See Audit trail for the data origin.":"Beispielfall XY geladen. Die Datenherkunft steht im Audit-Trail.");
 }
 function nzChartsBlockV3(){
   var en=state.lang==="en";
@@ -4393,7 +4395,7 @@ function wireActiveTab(){
     b("s4RegCsv",  typeof s4RegistryCsv==="function"?s4RegistryCsv:null);
     b("s4RegJson", typeof s4RegistryJson==="function"?s4RegistryJson:null);
     b("s4AuditMd", typeof s4AuditMd==="function"?s4AuditMd:null);
-    b("xTewCase", typeof nzLoadTewCaseV3==="function"?nzLoadTewCaseV3:null);
+    b("xSampleCase", typeof nzLoadSampleCaseV3==="function"?nzLoadSampleCaseV3:null);
     /* kein return: die uebrigen Export-Handler (xCsv/xMd/xImg/Import …) folgen weiter unten */
   }
   if(tab==="rechner"){
