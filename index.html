@@ -279,6 +279,34 @@ body.spotlight-on .card{background-image:radial-gradient(240px circle at var(--s
 .sim-chart-card{margin-bottom:0}
 .sim-chart{width:100%}
 .sim-chart svg{width:100%;height:auto;min-height:420px}
+/* V4 Simulator Simple/Expert */
+.sim-mode-v4{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.sim-mode-lab-v4{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.04em}
+.sim-mode-seg-v4{margin:0}
+.sim-mode-hint-v4{flex:1 1 220px;min-width:0}
+/* Alle sechs Kacheln gleich gross (Anwenderwunsch): festes Raster statt einer breiten
+   Sonderkachel, gleiche Zeilenhoehe ueber grid-auto-rows und eine einheitliche Grafikflaeche.
+   Die SVGs skalieren ueber viewBox, deshalb genuegt eine feste Hoehe am Container. */
+/* Alle sechs Kacheln gleich gross (Anwenderwunsch): keine breite Sonderkachel mehr, gleiche
+   Zeilenhoehe ueber grid-auto-rows, gleiche Grafikflaeche ueber eine feste SVG-Hoehe.
+   auto-fit statt fester Spaltenzahl, weil der Inhaltsbereich schmaler ist als das Fenster
+   (Sidebar) - eine Medienabfrage auf die Fensterbreite griffe hier zu spaet.
+   Die Lesehilfen sind fuer volle Breite geschrieben und wuerden die Kachel sonst auf ueber
+   800 px strecken (gemessen); deshalb begrenzt und bei Bedarf scrollbar. */
+.sim-grid-v4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;grid-auto-rows:1fr}
+@media(max-width:820px){.sim-grid-v4{grid-template-columns:1fr}}
+.sim-grid-v4>.card{margin-bottom:0;display:flex;flex-direction:column;min-width:0}
+.sim-tile-v4>h3{flex:0 0 auto;margin-bottom:6px}
+/* Feste Zeichenflaeche fuer alle sechs Kacheln. Wichtig: die aeltere Regel
+   ".sim-chart svg{min-height:420px}" setzt sich sonst durch - min-height schlaegt
+   max-height. Deshalb hier ausdruecklich zuruecksetzen. Die SVGs tragen eine viewBox und
+   skalieren mit preserveAspectRatio="meet", werden also eingepasst, nicht verzerrt. */
+.sim-tile-v4 svg,.sim-tile-v4 .sim-chart svg{width:100%;height:380px;min-height:380px;max-height:380px}
+.sim-tile-v4 .sim-chart{width:100%}
+.sim-tile-v4 .hint,.sim-tile-v4 p.hint{max-height:92px;overflow:auto;flex:0 1 auto;
+ font-size:11.5px;line-height:1.5;padding-right:4px}
+.sim-tile-v4 .hint::-webkit-scrollbar{width:6px}
+.sim-tile-v4 .hint::-webkit-scrollbar-thumb{background:rgba(140,170,205,.35);border-radius:3px}
 .sim-panel{position:sticky;top:120px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
   padding:12px;min-height:120px}
 .sim-panel-inner{transition:opacity .18s ease}
@@ -3888,19 +3916,62 @@ function nzPrintReportV3(){
    Zweig tab==="rechner" — im Simulator hatten die Regler daher gar keine Handler.
    Der Ergebnisbereich ist jetzt eine eigene Funktion, damit beim Ziehen NUR er neu gezeichnet
    wird: wuerde der ganze Tab neu rendern, verlaere der Regler den Fokus und das Ziehen bricht ab. */
+/* V4 (Anwenderwunsch 28.07.): Simple/Expert im Simulator. Simple zeigt weiterhin nur die
+   Emissions-Bruecke - eine Groesse, eine Aussage, gut zum Schieben. Expert stellt dieselbe
+   Bruecke als erste Kachel in ein Raster mit den fuenf Managementgrafiken, damit beim Ziehen
+   der Regler sofort sichtbar wird, was die Aenderung an Hebeln, Luecke, Zeitpunkt und
+   Pfadvergleich bewirkt. Die Grafiken sind dieselben Funktionen wie in Big Picture - keine
+   zweite Rechen- oder Zeichenlogik. */
+function simModeV4(){
+  if(state.simMode!=="simple"&&state.simMode!=="expert")state.simMode="simple";
+  return state.simMode;
+}
+function simModeSwitchHtmlV4(){
+  const en=state.lang==="en",m=simModeV4();
+  const lab={simple:en?"Simple":"Einfach",expert:en?"Expert":"Expert"};
+  return `<div class="sim-mode-v4" role="group" aria-label="${en?"Simulator view":"Simulator-Ansicht"}">
+    <span class="sim-mode-lab-v4">${en?"View":"Ansicht"}</span>
+    <div class="method-subtabs-v2 sim-mode-seg-v4">
+      <button type="button" class="${m==="simple"?"active":""}" data-simmode="simple">${lab.simple}</button>
+      <button type="button" class="${m==="expert"?"active":""}" data-simmode="expert">${lab.expert}</button>
+    </div>
+    <span class="hint sim-mode-hint-v4">${m==="expert"
+      ? (en?"Every slider move updates all six charts at once."
+          : "Jede Reglerbewegung aktualisiert alle sechs Grafiken gleichzeitig.")
+      : (en?"Only the emissions bridge. Switch to Expert for the full picture."
+          : "Nur die Emissions-Br\u00fccke. F\u00fcr das Gesamtbild auf Expert umschalten.")}</span>
+  </div>`;
+}
 function simStageHtmlV3(){
-  const result=buildDashboardResult();
+  const result=buildDashboardResult(),en=state.lang==="en";
   const kpis=result.valid?`<div class="sim-kpis">
     <div class="sim-kpi"><span>${t("kpi_zielreduktion")}</span><b>${fmtT(result.totalZiel)}</b></div>
     <div class="sim-kpi"><span>${t("kpi_massnahmen")}</span><b>${fmtT(result.totalMassnahmen)}</b></div>
     <div class="sim-kpi ${covTone(result.overallCov)}"><span>${t("kpi_deckungsgrad")}</span><b>${covText(result.overallCov)}</b></div>
     <div class="sim-kpi ${nettoTone(result)}"><span>${t("kpi_nettogesamt")}</span><b>${fmtT(result.nettoGesamt)}</b></div>
   </div>`:"";
-  const chart=result.valid?drawWaterfallChart(result.final):`<div class="empty-hint">${t("sim_blocked")}</div>`;
-  return `<div class="card sim-chart-card"><h3>${t("h_waterfallchart")}</h3>
+  const bruecke=result.valid?drawWaterfallChart(result.final):`<div class="empty-hint">${t("sim_blocked")}</div>`;
+
+  if(simModeV4()==="simple"){
+    return simModeSwitchHtmlV4()+
+      `<div class="card sim-chart-card"><h3>${t("h_waterfallchart")}</h3>
         ${kpis}
-        <div id="waterfallChartHost" class="sim-chart">${chart}</div>
+        <div id="waterfallChartHost" class="sim-chart">${bruecke}</div>
       </div>`;
+  }
+
+  const kachel=(titel,inhalt,cls)=>`<div class="card sim-tile-v4${cls?" "+cls:""}"><h3>${titel}</h3>${inhalt}</div>`;
+  const leer=`<div class="empty-hint">${t("sim_blocked")}</div>`;
+  const sicher=fn=>{try{return fn();}catch(e){return `<div class="empty-hint">${en?"Chart not available":"Grafik nicht verf\u00fcgbar"}</div>`;}};
+  return simModeSwitchHtmlV4()+kpis+
+    `<div class="sim-grid-v4">`+
+    kachel(t("h_waterfallchart"),`<div id="waterfallChartHost" class="sim-chart">${bruecke}</div>`)+
+    kachel(t("h_trajectorychart"),result.valid?sicher(drawTrajectoryChart):leer)+
+    kachel(en?"Which measure carries the most?":"Welche Ma\u00dfnahme tr\u00e4gt am meisten?",sicher(nzChartHebelV3))+
+    kachel(en?"Where is the gap?":"Wo klafft die L\u00fccke?",sicher(nzChartLueckeV3))+
+    kachel(en?"Does the effect arrive in time?":"Kommt die Wirkung rechtzeitig?",sicher(nzChartZeitV3))+
+    kachel(en?"How does the plan compare with SBTi, EU and IPCC?":"Wie steht der Plan zu SBTi, EU und IPCC?",sicher(nzChartPfadeV3))+
+    `</div>`;
 }
 function tabSimulatorV2(){
   const p=state.project;
@@ -4487,7 +4558,31 @@ function wireActiveTab(){
   if(tab==="simulator"){
     /* V3-Fix: Regler des Simulators verdrahten (lagen bisher nur im "rechner"-Zweig).
        Beim Ziehen wird ausschliesslich der Ergebnisbereich neu gezeichnet. */
-    const stage=()=>{const el=document.querySelector(".sim-stage");if(el)el.innerHTML=simStageHtmlV3();};
+    /* Neuzeichnen des Ergebnisbereichs. Im Expert-Modus haengen sechs Grafiken daran,
+       deshalb wird pro Frame nur einmal gezeichnet - sonst rechnet jeder input-Event des
+       Reglers den kompletten Satz neu und das Ziehen ruckelt. */
+    let simTimer=null;
+    const stageNow=()=>{
+      const el=document.querySelector(".sim-stage");
+      if(!el)return;
+      el.innerHTML=simStageHtmlV3();
+      wireSimModeV4();
+      try{if(typeof injectVollbildButtonsV2==="function")injectVollbildButtonsV2();}catch(e){}
+    };
+    /* Bewusst setTimeout statt requestAnimationFrame: rAF feuert nicht, solange die Seite
+       nicht komponiert (Hintergrundtab, minimiertes Fenster). Das Ergebnis haenge dann am
+       Zeichen-Takt statt an der Eingabe - beim Test blieb die Ansicht stehen, obwohl der
+       Zustand sich schon geaendert hatte. Ein Timer feuert in beiden Faellen. */
+    const stage=()=>{
+      if(simTimer)clearTimeout(simTimer);
+      simTimer=setTimeout(()=>{simTimer=null;stageNow();},50);
+    };
+    function wireSimModeV4(){
+      document.querySelectorAll("[data-simmode]").forEach(b=>{
+        b.onclick=()=>{state.simMode=b.dataset.simmode;stageNow();scheduleAutosave();};
+      });
+    }
+    wireSimModeV4();
     document.querySelectorAll(".sim-panel [data-scope]").forEach(el=>{
       const scope=el.dataset.scope, field=el.dataset.sf;
       el.addEventListener("input",()=>{
