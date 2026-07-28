@@ -284,6 +284,8 @@ body.spotlight-on .card{background-image:radial-gradient(240px circle at var(--s
 .sim-mode-lab-v4{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.04em}
 .sim-mode-seg-v4{margin:0}
 .sim-mode-hint-v4{flex:1 1 220px;min-width:0}
+.sim-neutral-warn-v7{font-size:11px;line-height:1.45}
+.sim-neutral-warn-v7.is-warn-v7{color:var(--warning);font-weight:600}
 /* Alle sechs Kacheln gleich gross (Anwenderwunsch): festes Raster statt einer breiten
    Sonderkachel, gleiche Zeilenhoehe ueber grid-auto-rows und eine einheitliche Grafikflaeche.
    Die SVGs skalieren ueber viewBox, deshalb genuegt eine feste Hoehe am Container. */
@@ -1980,6 +1982,38 @@ function userGuideInnerV3(){
   </div>`;
 }
 /* V3: Rechenwege — vorher zeigte dieser Unterreiter den Audit-Teil (Fehlzuordnung). */
+/* V7: Kurzkapitel Neutralisierung - der Punkt, an dem im Tool am ehesten falsch gerechnet
+   wird. Grundlage: SBTi Corporate Net-Zero Standard (fuer Validierungen 2026 weiterhin
+   ueberwiegend V1.3.1; Validierungen nach V2.0 ab Anfang 2027). */
+function neutralMethodikV7(){
+  const en=state.lang==="en";
+  return `<div class="card"><h3>${en?"Neutralisation and SBTi \u2014 what may be offset, and what may not":"Neutralisierung und SBTi \u2014 was verrechnet werden darf und was nicht"}</h3>
+   <p>${en
+    ? "<b>Purchased carbon credits or external removals must not be deducted</b> from reported scope 1, 2 or 3 emissions in order to meet a reduction pathway. Target achievement is assessed on the actual emissions development and on measures inside the value chain."
+    : "<b>Gekaufte CO\u2082-Zertifikate oder externe Entnahmen d\u00fcrfen nicht</b> von den bilanzierten Scope-1-, Scope-2- oder Scope-3-Emissionen abgezogen werden, um einen Reduktionspfad einzuhalten. Die Zielerreichung wird an der tats\u00e4chlichen Emissionsentwicklung und an Ma\u00dfnahmen innerhalb der Wertsch\u00f6pfungskette bewertet."}</p>
+   <div class="hint" style="font-family:ui-monospace,Consolas,monospace;line-height:1.7;margin:8px 0">
+    ${en?"SBTi pathway 2028":"SBTi-Pfad 2028"}: 8.000 t CO\u2082e<br>
+    ${en?"actual emissions":"tats\u00e4chliche Emissionen"}: 9.000 t CO\u2082e<br>
+    ${en?"purchased removals":"gekaufte Entnahmen"}: 1.000 t CO\u2082e<br>
+    <b>${en?"SBTi status: 9,000 t \u2014 target missed by 1,000 t":"SBTi-Status: 9.000 t \u2014 Ziel um 1.000 t verfehlt"}</b>
+   </div>
+   <p>${en
+    ? "The 1,000 t may only be reported separately as a climate contribution or beyond value chain mitigation."
+    : "Die 1.000 t d\u00fcrfen nur getrennt als Klimabeitrag beziehungsweise \u201eBeyond Value Chain Mitigation\u201c ausgewiesen werden."}</p>
+   <p><b>${en?"When is neutralisation legitimate?":"Wann ist Neutralisierung zul\u00e4ssig?"}</b> ${en
+    ? "In the SBTi sense only once the long-term target is reached and emissions are down to the permissible residual level. Those technically unavoidable residuals must then be neutralised in full by durable removals, in the net-zero target year and beyond."
+    : "Im SBTi-Sinn erst, wenn das langfristige Ziel erreicht und die Emissionen auf das zul\u00e4ssige Residualniveau reduziert sind. Die dann technisch unvermeidbaren Restemissionen m\u00fcssen im Net-Zero-Zieljahr und danach vollst\u00e4ndig durch dauerhafte Entnahmen neutralisiert werden."}</p>
+   <p>${en
+    ? "Version 2.0 permits and even encourages financing additional removals when a target is missed, but states explicitly: <b>those removals do not count towards target progress and do not repair the shortfall.</b> Climate contributions under the new ongoing emissions responsibility approach must likewise be reported separately from the GHG inventory and from SBTi progress; offsetting is excluded."
+    : "Version 2.0 erlaubt und empfiehlt sogar, bei Zielverfehlung zus\u00e4tzlich Entnahmen zu finanzieren, stellt aber ausdr\u00fccklich klar: <b>Diese Entnahmen z\u00e4hlen nicht zum Zielfortschritt und reparieren die Verfehlung nicht rechnerisch.</b> Auch Klimabeitr\u00e4ge im Ansatz \u201eOngoing Emissions Responsibility\u201c sind getrennt vom THG-Inventar und vom SBTi-Fortschritt auszuweisen; eine Verrechnung ist ausgeschlossen."}</p>
+   <p><b>${en?"How this tool shows it":"So stellt dieses Tool es dar"}:</b> ${en
+    ? "gross emissions \u2192 SBTi pathway \u2192 deviation from the pathway \u2192 <i>separately</i> voluntary contributions and removals. In the pathway chart the own plan line is the operational residual <b>before</b> neutralisation; removals appear as a separate dashed marker below it. The impermissible form \u2014 gross minus credits equals SBTi-compliant emissions \u2014 does not occur anywhere in the tool."
+    : "Bruttoemissionen \u2192 SBTi-Sollpfad \u2192 Abweichung zum Pfad \u2192 <i>getrennt</i> freiwillige Klimabeitr\u00e4ge und Entnahmen. In der Pfadgrafik ist die eigene Planlinie der operative Rest <b>vor</b> Neutralisierung; Entnahmen stehen als eigener gestrichelter Marker darunter. Die unzul\u00e4ssige Form \u2014 Brutto minus Zertifikate gleich SBTi-konforme Emissionen \u2014 kommt im Tool nirgends vor."}</p>
+   <p class="hint">${en
+    ? "For target validations in 2026 the Corporate Net-Zero Standard version 1.3.1 remains largely authoritative; validations under version 2.0 start in early 2027. The separation between real reduction and neutralisation is unchanged by that."
+    : "F\u00fcr Zielvalidierungen im Jahr 2026 ist weiterhin \u00fcberwiegend der Corporate Net-Zero Standard Version 1.3.1 ma\u00dfgeblich; Validierungen nach Version 2.0 starten Anfang 2027. An der Trennung zwischen echter Reduktion und Neutralisierung \u00e4ndert das nichts."}</p>
+  </div>`;
+}
 function rechenwegeInnerV3(){
   const en=state.lang==="en";
   const f=(t1,formel,txt)=>`<div style="margin:10px 0"><b>${t1}</b><div style="font-family:ui-monospace,Consolas,monospace;font-size:12.5px;margin:3px 0;opacity:.9">${formel}</div><span style="opacity:.85">${txt}</span></div>`;
@@ -2008,6 +2042,7 @@ function rechenwegeInnerV3(){
       ? "Rounding happens only for display; the calculation runs on unrounded values. Sources and assumptions belong under Audit trail, the factors for the equivalents are listed there too."
       : "Gerundet wird nur für die Anzeige, gerechnet mit ungerundeten Werten. Quellen und Annahmen gehören unter Audit-Trail, dort stehen auch die Faktoren der Äquivalente."}</p>
   </div>`
+  + neutralMethodikV7()
   + `<div class="card"><h3>${en?"How the four Big-Picture charts are built":"Wie die vier Big-Picture-Grafiken entstehen"}</h3>
     ${f(en?"Which measure contributes most?":"Welche Maßnahme trägt am meisten?",
       en?"share = effect of the measure ÷ sum of all measure effects":"Anteil = Wirkung der Maßnahme ÷ Summe aller Maßnahmenwirkungen",
@@ -3067,7 +3102,12 @@ function drawWaterfallChart(final){
     <text x="${(x+barW/2).toFixed(1)}" y="${h-padB+16}" text-anchor="middle" font-size="10" fill="var(--text-muted)">${b.label}</text>`;
   }).join("");
 
-  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;overflow:visible">
+  /* V5: role und aria-label ergaenzt - die Grafik war fuer Screenreader eine stumme Flaeche.
+     Die Beschreibung nennt Ausgangswert, die Treiber und das Ergebnis. */
+  const ariaW=(state.lang==="en"
+    ? `Emissions bridge to the target year: baseline ${fmtT(total)} t CO2e, plus growth, minus the reductions in scope 1, 2 and 3 and neutralisation, resulting in ${fmtT(final.netTotal)} t CO2e.`
+    : `Emissions-Bruecke zum Zieljahr: Ausgangswert ${fmtT(total)} t CO2e, zuzueglich Wachstum, abzueglich der Reduktionen in Scope 1, 2 und 3 sowie Neutralisierung, Ergebnis ${fmtT(final.netTotal)} t CO2e.`);
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(ariaW)}" style="width:100%;height:auto;overflow:visible">
     ${gridLines}
     <line x1="${padL}" y1="${zeroY.toFixed(1)}" x2="${w-padR}" y2="${zeroY.toFixed(1)}" stroke="var(--text-muted)" stroke-width="1"/>
     ${rects}
@@ -3078,7 +3118,9 @@ function drawTrajectoryChart(){
   const I = readInputs();
   const years=[]; for(let y=I.baseYear;y<=I.targetYear;y++) years.push(y);
   const series = years.map(y=>calcForYear(y));
-  const w=880,h=390,padL=64,padR=16,padT=28,padB=36;
+  /* V5: padB von 36 auf 46 - die "0" der y-Achse und die erste Jahreszahl beruehrten sich
+     (gemessen). Mehr Raum unten loest es, ohne die Kurve zu stauchen. */
+  const w=880,h=400,padL=64,padR=16,padT=28,padB=46;
   const innerW=w-padL-padR, innerH=h-padT-padB;
   const xOf = i=> padL + (years.length>1? i*innerW/(years.length-1) : 0);
   const finalNet = series[series.length-1].netTotal;
@@ -3107,9 +3149,12 @@ function drawTrajectoryChart(){
   }
 
   const labelStep = Math.max(1, Math.ceil(years.length/12));
-  const xLabels = years.map((y,i)=> i%labelStep===0? `<text x="${xOf(i).toFixed(1)}" y="${h-padB+16}" text-anchor="middle" font-size="10" fill="var(--text-muted)">${y}</text>`:"").join("");
+  const xLabels = years.map((y,i)=> i%labelStep===0? `<text x="${xOf(i).toFixed(1)}" y="${h-padB+20}" text-anchor="middle" font-size="10" fill="var(--text-muted)">${y}</text>`:"").join("");
 
-  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;overflow:visible">
+  const ariaT=(state.lang==="en"
+    ? `Emissions pathway from base year ${I.baseYear} to target year ${I.targetYear}: from ${fmtT(I.total)} to ${fmtT(finalNet)} t CO2e. Solid line: operational emissions, dashed line: linear target path.`
+    : `Emissionspfad von Basisjahr ${I.baseYear} bis Zieljahr ${I.targetYear}: von ${fmtT(I.total)} auf ${fmtT(finalNet)} t CO2e. Durchgezogene Linie: operative Emissionen, gestrichelte Linie: linearer Zielpfad.`);
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(ariaT)}" style="width:100%;height:auto;overflow:visible">
     ${gridLines}
     <path d="${targetPath}" fill="none" stroke="var(--neutral)" stroke-width="2" stroke-dasharray="5,4"/>
     <path d="${opPath}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
@@ -3744,12 +3789,25 @@ function nzChartPfadeV3(){
     var endY=Y(Math.max(0,startE*(1-pf.rate/100*(endeJ-basisJ))));
     g+='<text x="'+(w-padR+6)+'" y="'+(endY+4).toFixed(1)+'" font-size="10.5" fill="'+pf.farbe+'">'+pf.kurz+'</text>';
   });
-  // eigene Planlinie: Basis -> Netto-Rest im Zieljahr
-  var restZiel=(res.final&&res.final.netTotal!=null)?res.final.netTotal:startE;
+  /* V7 (fachliche Korrektur 28.07.2026): Die Planlinie zeigte bisher den NETTO-Rest, also
+     den Wert nach Abzug der Neutralisierung. Damit stand "Brutto minus Zertifikate" gegen
+     den SBTi-Pfad - genau die Verrechnung, die der Corporate Net-Zero Standard ausschliesst.
+     Gekaufte Entnahmen zaehlen nicht zum Zielfortschritt. Verglichen wird deshalb der
+     operative Rest (opTotal) vor Neutralisierung; die Entnahmen werden separat markiert. */
+  var restZiel=(res.final&&res.final.opTotal!=null)?res.final.opTotal:startE;
+  var neutralZiel=(res.final&&res.final.neutralAmt)||0;
   var dPlan="M"+X(basisJ).toFixed(1)+","+Y(startE).toFixed(1)+" L"+X(zielJ).toFixed(1)+","+Y(restZiel).toFixed(1);
   g+='<path d="'+dPlan+'" fill="none" stroke="var(--danger)" stroke-width="3">'
     +'<title>'+(en?"Own plan":"Eigener Plan")+': '+fmtT(startE)+' t \u2192 '+fmtT(restZiel)+' t ('+basisJ+'\u2013'+zielJ+')</title></path>';
   g+='<circle cx="'+X(zielJ).toFixed(1)+'" cy="'+Y(restZiel).toFixed(1)+'" r="5" fill="var(--danger)"/>';
+  if(neutralZiel>0){
+    /* Entnahmen als eigener, klar getrennter Marker unter der Planlinie - nie in sie eingerechnet. */
+    var yN=Y(Math.max(0,restZiel-neutralZiel));
+    g+='<line x1="'+X(zielJ).toFixed(1)+'" y1="'+Y(restZiel).toFixed(1)+'" x2="'+X(zielJ).toFixed(1)+'" y2="'+yN.toFixed(1)+'" stroke="var(--success)" stroke-width="2.4" stroke-dasharray="3 3"/>'
+      +'<circle cx="'+X(zielJ).toFixed(1)+'" cy="'+yN.toFixed(1)+'" r="4" fill="none" stroke="var(--success)" stroke-width="2"/>'
+      +'<title>'+(en?"Voluntary removals / climate contribution":"Freiwillige Entnahmen / Klimabeitrag")+': '+fmtT(neutralZiel)+' t \u2013 '
+      +(en?"shown separately, not counted towards the SBTi pathway":"getrennt ausgewiesen, zaehlt nicht auf den SBTi-Pfad")+'</title>';
+  }
   g+='<text x="'+(X(zielJ)).toFixed(1)+'" y="'+(Y(restZiel)-11).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--danger)">'+(en?"own plan":"eigener Plan")+' '+zielJ+'</text>';
   // Netto-Null-Marken
   NZ_NETTONULL_V3.forEach(function(m){
@@ -3994,16 +4052,40 @@ function tabSimulatorV2(){
     <aside class="sim-panel">
       <button type="button" class="sim-panel-toggle" id="simPanelToggle" title="${t("sim_toggle")}" aria-label="${t("sim_toggle")}">${open?"\u25B8":"\u25C2"}</button>
       <div class="sim-panel-inner">
-        <div class="sim-panel-title">${t("sim_controls")}</div>
+        <div class="sim-panel-title">${state.lang==="en"?"Time frame":"Zeitrahmen"}</div>
+        <div class="sim-slider">
+          <div class="sim-slider-head"><span>${t("f_basisjahr")}</span><b id="simval_basis">${p.basisjahr}</b></div>
+          <input type="range" min="2015" max="2035" step="1" id="sim_basis" value="${p.basisjahr}">
+        </div>
+        <div class="sim-slider">
+          <div class="sim-slider-head"><span>${t("f_nearjahr")}</span><b id="simval_nearjahr">${p.nearjahr}</b></div>
+          <input type="range" min="2016" max="2049" step="1" id="sim_nearjahr" value="${p.nearjahr}">
+        </div>
+        <div class="sim-slider">
+          <div class="sim-slider-head"><span>${t("f_zieljahr")}</span><b id="simval_ziel">${p.zieljahr}</b></div>
+          <input type="range" min="2020" max="2060" step="1" id="sim_zieljahr" value="${p.zieljahr}">
+        </div>
+        <div class="hint" id="simZeitHinweis" style="margin-top:6px;color:var(--warning)">${esc(state.simZeitHinweis||"")}</div>
+
+        <div class="sim-panel-title" style="margin-top:14px">${state.lang==="en"?"Reduction":"Reduktion"}</div>
         ${sliders}
         <div class="sim-slider">
           <div class="sim-slider-head"><span>${t("f_nearreduktion")}</span><b id="simval_near">${p.nearreduktion}%</b></div>
           <input type="range" min="0" max="100" step="1" id="p_nearreduktion" value="${p.nearreduktion}">
-          <div class="sim-slider-sub">${t("f_nearjahr")}: ${p.nearjahr}</div>
+          <div class="sim-slider-sub">${t("f_nearjahr")}: <b id="simsub_near">${p.nearjahr}</b></div>
         </div>
         <div class="sim-slider">
-          <div class="sim-slider-head"><span>${t("f_wachstum")}</span><b>${state.global.wachstum}%</b></div>
-          <input type="number" step="0.1" id="g_wachstum" value="${state.global.wachstum}">
+          <div class="sim-slider-head"><span>${state.lang==="en"?"Growth (BAU)":"Wachstum (BAU)"}</span><b id="simval_wachstum">${state.global.wachstum}%</b></div>
+          <input type="range" min="-5" max="10" step="0.1" id="sim_wachstum" value="${state.global.wachstum}">
+          <div class="sim-slider-sub">${state.lang==="en"?"total BAU growth to the target year, across all scopes":"BAU-Gesamtwachstum bis zum Zieljahr, über alle Scopes"}</div>
+        </div>
+
+        <div class="sim-panel-title" style="margin-top:14px">${state.lang==="en"?"Beyond the reduction path":"Außerhalb des Reduktionspfads"}</div>
+        <div class="sim-slider">
+          <div class="sim-slider-head"><span>${state.lang==="en"?"Neutralisation":"Neutralisierung"}</span><b id="simval_neutral">${state.neutralisierung.prozent}%</b></div>
+          <input type="range" min="0" max="100" step="1" id="sim_neutral" value="${state.neutralisierung.prozent}">
+          <div class="sim-slider-sub">${state.lang==="en"?"share of the operational residual emission that is compensated":"neutralisierter Anteil der operativen Restemission"}</div>
+          <div class="hint sim-neutral-warn-v7" id="simNeutralWarn" style="margin-top:6px"></div>
         </div>
         <div class="hint" style="margin-top:10px">${t("sim_note")}</div>
       </div>
@@ -4583,6 +4665,73 @@ function wireActiveTab(){
       });
     }
     wireSimModeV4();
+    /* V6 (Anwenderwunsch 28.07.): Zeitrahmen und Neutralisierung als Regler. Die drei
+       Jahreszahlen haengen voneinander ab - Basisjahr < Nahjahr < Zieljahr. Statt eine
+       Eingabe stumm zu verwerfen, werden die Nachbarn mitgezogen und der Grund steht als
+       Hinweis unter den Reglern. Der Kopf der Seite nennt Basis- und Zieljahr, deshalb wird
+       bei Jahresaenderung die ganze Ansicht neu gebaut, sonst nur der Ergebnisbereich. */
+    /* Der Hinweis muss den Neuaufbau ueberleben - deshalb im Zustand, nicht im DOM. */
+    const zeitHinweis=(txt)=>{state.simZeitHinweis=txt||"";};
+    const setzeJahr=(feld,wert,quelle)=>{
+      const p2=state.project;
+      let b=+p2.basisjahr,nz=+p2.nearjahr,z=+p2.zieljahr;
+      if(feld==="basis")b=wert; if(feld==="near")nz=wert; if(feld==="ziel")z=wert;
+      const meldungen=[];
+      const en=state.lang==="en";
+      if(nz<=b){nz=b+1;meldungen.push(en?"Interim year moved to "+nz+" - it must lie after the base year."
+        :"Zwischenzieljahr auf "+nz+" gesetzt \u2013 es muss nach dem Basisjahr liegen.");}
+      if(z<=nz){z=nz+1;meldungen.push(en?"Target year moved to "+z+" - it must lie after the interim year."
+        :"Zieljahr auf "+z+" gesetzt \u2013 es muss nach dem Zwischenzieljahr liegen.");}
+      p2.basisjahr=b;p2.nearjahr=nz;p2.zieljahr=z;
+      zeitHinweis(meldungen.join(" "));   /* vor renderAll, damit das Markup ihn ausgibt */
+      scheduleAutosave();
+      renderAll();                       /* Kopfzeile und Achsen haengen an den Jahren */
+      const nb=document.getElementById(quelle); if(nb)nb.focus();
+    };
+    [["sim_basis","basis"],["sim_nearjahr","near"],["sim_zieljahr","ziel"]].forEach(([id,feld])=>{
+      const el=document.getElementById(id); if(!el)return;
+      el.addEventListener("input",()=>{
+        const lab={basis:"simval_basis",near:"simval_nearjahr",ziel:"simval_ziel"}[feld];
+        const l=document.getElementById(lab); if(l)l.textContent=el.value;
+      });
+      el.addEventListener("change",()=>setzeJahr(feld,Number(el.value),id));
+    });
+    /* Neutralisierung darf eine Zielverfehlung nicht rechnerisch reparieren. Wird sie
+       eingesetzt, obwohl die Massnahmen das Reduktionsziel noch nicht decken, steht das
+       als Warnung direkt am Regler - der Regler bleibt bedienbar, die Aussage aber klar. */
+    const neutralWarnV7=()=>{
+      const el=document.getElementById("simNeutralWarn"); if(!el)return;
+      const pz=state.neutralisierung.prozent||0;
+      if(pz<=0){el.textContent="";el.classList.remove("is-warn-v7");return;}
+      let deckung=null;
+      try{const rr=buildDashboardResult();deckung=rr&&rr.overallCov?rr.overallCov.coverage:null;}catch(e){}
+      const en=state.lang==="en";
+      if(deckung!=null&&deckung<100){
+        el.classList.add("is-warn-v7");
+        el.textContent=en
+          ? "Removals do not count towards SBTi progress. The reduction target is only "+Math.round(deckung)+" % covered by measures - neutralisation does not close that gap, it is reported separately as a climate contribution."
+          : "Entnahmen zählen nicht zum SBTi-Zielfortschritt. Das Reduktionsziel ist erst zu "+Math.round(deckung)+" % durch Maßnahmen gedeckt \u2013 die Neutralisierung schließt diese Lücke nicht, sie wird getrennt als Klimabeitrag ausgewiesen.";
+      }else{
+        el.classList.remove("is-warn-v7");
+        el.textContent=en
+          ? "Reported separately from the reduction path, never offset against scope 1, 2 or 3."
+          : "Wird getrennt vom Reduktionspfad ausgewiesen, nie mit Scope 1, 2 oder 3 verrechnet.";
+      }
+    };
+    neutralWarnV7();
+    const neu=document.getElementById("sim_neutral");
+    if(neu)neu.addEventListener("input",()=>{
+      state.neutralisierung.prozent=Number(neu.value);
+      const l=document.getElementById("simval_neutral"); if(l)l.textContent=neu.value+"%";
+      neutralWarnV7(); stage(); scheduleAutosave();
+    });
+    document.querySelectorAll(".sim-panel [data-scope]").forEach(el=>el.addEventListener("input",neutralWarnV7));
+    const wa=document.getElementById("sim_wachstum");
+    if(wa)wa.addEventListener("input",()=>{
+      state.global.wachstum=Number(wa.value);
+      const l=document.getElementById("simval_wachstum"); if(l)l.textContent=wa.value+"%";
+      stage(); scheduleAutosave();
+    });
     document.querySelectorAll(".sim-panel [data-scope]").forEach(el=>{
       const scope=el.dataset.scope, field=el.dataset.sf;
       el.addEventListener("input",()=>{
@@ -4597,11 +4746,8 @@ function wireActiveTab(){
       const lab=document.getElementById("simval_near"); if(lab)lab.textContent=near.value+"%";
       stage(); scheduleAutosave();
     });
-    const wg=document.getElementById("g_wachstum");
-    if(wg)wg.addEventListener("input",()=>{
-      state.global.wachstum=Number(wg.value);
-      stage(); scheduleAutosave();
-    });
+    /* g_wachstum gibt es im Simulator nicht mehr (jetzt Regler sim_wachstum); im Rechner
+       bleibt das Zahlenfeld bestehen und wird dort verdrahtet. */
   }
   if(tab==="audit"){
     /* V3-Fix (Review 27.07.2026, Lehre 18 Werkzeugbau): Der Reiter "Audit-Trail" zeigt seit
